@@ -5,3 +5,5 @@
 .answer-preview{padding:12px 16px;margin:12px 0;background:#f0f3fc;border-radius:12px}.preview-math{font-size:26px;font-weight:700}.preview-math sup{font-size:.65em}
 
 .fraction-editor{display:inline-grid;gap:0;max-width:320px;width:100%;vertical-align:middle}.fraction-editor input{width:100%;text-align:center!important;min-width:0!important;border:0;border-radius:0;background:#f5f7ff}.fraction-editor input:first-child{border-bottom:3px solid #25283b!important}.fraction-editor input:last-child{border-top:0}#fraction-toggle{margin-top:12px}
+
+.expected-format{background:#e9ecf8;border-left:4px solid #3348b9;padding:14px 16px;border-radius:8px;font-weight:650;line-height:1.5}
