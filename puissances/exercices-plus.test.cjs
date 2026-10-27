@@ -32,9 +32,20 @@ for(const expression of ['2*3^2+4*2','2*(3^2-1)+4*5','-(-3)^2+4*(3^2-1)','((-3)^
 }
 assert.equal(E.nextStep(E.tree('2*3^2+4*2')).focus[0],'pow');
 assert.equal(E.nextStep(E.tree('2*(3+1)+4*5')).focus[0],'add');
+for(const [expression,answer] of E.prioritySamples.map((expression,i)=>[expression,[-168,35,36,-32][i]])){
+ const parsed=E.tree(expression);assert.equal(E.text(E.evaluate(parsed)),String(answer));assert(same(E.evaluate(parsed),D.parse(expression)));
+ const steps=E.worked(parsed);assert(steps.at(-1).html.includes('number-line'));assert(steps.at(-1).html.includes(`On arrive à ${answer}.`));
+ let current=parsed,next;while((next=E.nextStep(current))){current=next.tree;assert.equal(E.text(E.evaluate(current)),String(answer));}
+}
+assert.equal(E.text(E.evaluate(E.tree('12/3*2'))),'8');
+assert.equal(E.nextStep(E.tree('12/3*2')).focus[0],'div');
+assert(E.worked(E.tree('-96+64')).at(-1).html.includes('vers la droite'));
+assert(E.worked(E.tree('-120-48')).at(-1).html.includes('vers la gauche'));
+const observed=new Set();for(let i=0;i<400;i++)observed.add(E.create('priorites-puissances',random).expression);for(const expression of E.prioritySamples)assert(observed.has(expression));
 for(const level of [1,2,3])for(const count of [20,50,100]){
  const rows=D.session(count,random,level);assert.equal(rows.length,count);assert.equal(new Set(rows.map(q=>q.prompt)).size,count);
  assert(rows.some(q=>['fraction-vers-puissance','puissance-fraction','fractions-puissances'].includes(q.kind)));assert(rows.some(q=>q.kind.startsWith('phrase-')));
  for(const q of rows){const r=D.check(q,q.form==='translation'?q.expression:q.answer);assert(r.correct&&r.reduced!==false,q.kind);}
 }
 console.log('OK : 1 440 nouveaux exercices, fractions comme puissances, traductions non calculées, signes, comparaisons à 1, équations, priorités visuelles et séries enrichies.');
+console.log('OK : quatre exemples de priorités, résultats −168 / 35 / 36 / −32, division puis multiplication de gauche à droite et droite graduée finale.');

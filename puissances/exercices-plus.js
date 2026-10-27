@@ -2,6 +2,7 @@
 'use strict';
 const pow=(a,n)=>`${a}<sup>${n}</sup>`,frac=(a,b)=>`<span class="math-fraction"><span>${a}</span><span>${b}</span></span>`;
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const prioritySamples=['-8*(17-2)-(21-5)*3','12/3*2+3*(5-8)^2','2*3^2+(4-1)^2+3*(5-2)','4-5*(2^3+4*3)+(-8)^2'];
 function gcd(a,b){a=a<0n?-a:a;b=b<0n?-b:b;while(b)[a,b]=[b,a%b];return a;}
 function rat(n,d=1n){if(!d)throw Error('Dénominateur nul');if(d<0n){n=-n;d=-d;}const g=gcd(n,d);return [n/g,d/g];}
 const text=v=>v[1]===1n?String(v[0]):`${v[0]}/${v[1]}`;
@@ -36,7 +37,8 @@ function reduceOne(t){
  const messages={neg:'Prendre l’opposé change le signe de tout le groupe.',pow:'Calculer cette puissance avant les produits et sommes extérieurs.',mul:'Effectuer cette multiplication et appliquer la règle des signes.',div:'Effectuer cette division et réduire la fraction.',add:'Additionner les termes restants.',sub:'Soustraire en conservant les signes et les parenthèses.'};return {tree:replace(t),text:messages[focus[0]],focus};
 }
 function marked(t,focus){if(t===focus){const copy=t.slice();copy.highlight=true;return copy;}if(['num','val','var'].includes(t[0]))return t;return t[0]==='pow'?[t[0],marked(t[1],focus),t[2]]:t[0]==='neg'?[t[0],marked(t[1],focus)]:[t[0],marked(t[1],focus),marked(t[2],focus)];}
-function worked(t,values){const steps=[];let current=t;if(values){current=substitute(t,values);steps.push({text:'Remplacer chaque lettre par sa valeur, entre parenthèses si elle est négative.',html:html(current)});}let next,limit=24;while(limit--&&(next=reduceOne(current))){const before=html(marked(current,next.focus));current=next.tree;steps.push({text:next.text,html:`<div class="work-before">${before}</div><div class="work-after">→ ${html(current)}</div>`});}return steps;}
+function numberLine(t){if(!['add','sub'].includes(t[0]))return '';const a=nodeValue(t[1]),b=nodeValue(t[2]);if(!a||!b||a[1]!==1n||b[1]!==1n)return '';const start=Number(a[0]),delta=Number(b[0])*(t[0]==='sub'?-1:1),end=start+delta;if(Math.max(Math.abs(start),Math.abs(delta),Math.abs(end))>10000)return '';const min=Math.min(0,start,end),max=Math.max(0,start,end),span=Math.max(1,max-min),x=v=>45+(v-min)/span*470,arrow=delta>0?-1:1;const message=`On part de ${start}. ${t[0]==='add'?'Ajouter':'Soustraire'} ${b[0]} ${delta===0?'ne déplace pas le point':`fait avancer de ${Math.abs(delta)} vers la ${delta>0?'droite':'gauche'}`}. On arrive à ${end}.`;return `<figure class="number-line"><figcaption>${message}</figcaption><svg viewBox="0 0 560 110" role="img" aria-label="${esc(message)}"><line x1="28" y1="65" x2="535" y2="65" stroke="#687189" stroke-width="2"/>${Array.from(new Set([0,start,end])).map(v=>`<line x1="${x(v)}" y1="59" x2="${x(v)}" y2="72" stroke="#687189"/><text x="${x(v)}" y="96" text-anchor="middle">${v}</text>`).join('')}<line x1="${x(start)}" y1="35" x2="${x(end)}" y2="35" stroke="#4154bc" stroke-width="3"/>${delta?`<path d="M${x(end)+arrow*8} 29 L${x(end)} 35 L${x(end)+arrow*8} 41" fill="none" stroke="#4154bc" stroke-width="3"/>`:''}<circle cx="${x(start)}" cy="65" r="5" fill="#4154bc"/><circle cx="${x(end)}" cy="65" r="6" fill="#206f39"/><text x="${(x(start)+x(end))/2}" y="22" text-anchor="middle">${delta>=0?'+':''}${delta}</text></svg></figure>`;}
+function worked(t,values){const steps=[];let current=t;if(values){current=substitute(t,values);steps.push({text:'Remplacer chaque lettre par sa valeur, entre parenthèses si elle est négative.',html:html(current)});}let next,limit=24;while(limit--&&(next=reduceOne(current))){const before=html(marked(current,next.focus)),line=next.focus===current?numberLine(next.focus):'';current=next.tree;steps.push({text:next.text,html:`<div class="work-before">${before}</div><div class="work-after">→ ${html(current)}</div>${line}`});}return steps;}
 // Preserve the requested operations for a translation, while accepting redundant
 // parentheses, rearranged products and an outside minus written as × (−1).
 function canonical(t){
@@ -106,10 +108,10 @@ function create(kind,random=Math.random){
   const intermediate=[['-'+a,`(-${a})^3`,expression],['-'+a,`(-${a})^2`,expression],[`${a}^3`,`2*${a}^3`,expression],[`2*${a}`,`-(2*${a})`,expression],[`${a}^2`,`-(${a}^2)`,expression]][variant];
   q.steps=explanations.map((text,i)=>({text,html:html(tree(intermediate[i]))}));if(q.numeric)q.steps.push(...worked(parsed));
  }else if(kind==='calcul-litteral'||kind==='priorites-puissances'){
-  const a=choose([-4,-3,-2,2,3,4]),b=r(1,5),c=r(1,4),variant=r(0,2),variables=kind==='calcul-litteral';
-  const expressions=variables?['2*a^2-3*b+(a-b)^2','-(a^2)+3*a*b-(b-a)^2','(a^3-b^2)/(a-b)+2*a']:[`-(-${Math.abs(a)})^2+${b}*(3^2-${c})`,`(2^3-${b})*(-${c})^2-${Math.abs(a)}^2`,`((-3)^3+${b})/${c}+2*${Math.abs(a)}^2`];
+  const a=choose([-4,-3,-2,2,3,4]),b=r(1,5),c=r(1,4),variables=kind==='calcul-litteral';
+  const expressions=variables?['2*a^2-3*b+(a-b)^2','-(a^2)+3*a*b-(b-a)^2','(a^3-b^2)/(a-b)+2*a']:[`-(-${Math.abs(a)})^2+${b}*(3^2-${c})`,`(2^3-${b})*(-${c})^2-${Math.abs(a)}^2`,`((-3)^3+${b})/${c}+2*${Math.abs(a)}^2`,`-${r(2,9)}*(${r(12,20)}-${r(1,9)})-(${r(15,24)}-${r(1,8)})*${r(2,5)}`,`${r(2,6)*3}/3*${r(2,4)}+${r(2,5)}*(${r(2,5)}-${r(6,9)})^2`,`${r(2,4)}*3^2+(${r(3,7)}-1)^2+3*(${r(4,8)}-2)`,`${r(2,8)}-${r(2,6)}*(2^3+${r(2,5)}*3)+(-${r(4,9)})^2`,...prioritySamples];
   // Avoid zero denominators without resampling the whole exercise.
-  const assigned={a,b:a===b?b+1:b},expression=expressions[variant],parsed=tree(expression,{variables});
+  const assigned={a,b:a===b?b+1:b},expression=choose(expressions),parsed=tree(expression,{variables});
   q.numeric=true;q.assignments=variables?assigned:undefined;q.expression=expression;q.answer=text(evaluate(parsed,assigned));q.prompt=(variables?`<p class="assignment">Pour a = ${assigned.a} et b = ${assigned.b}</p>`:'')+html(parsed);q.instruction=variables?'Remplace les lettres, puis effectue le calcul.':'Effectue le calcul en respectant les priorités.';q.format='Donne un nombre calculé ou une fraction réduite. Les puissances et parenthèses sont prioritaires.';
   q.hint=variables?'Remplace chaque lettre négative entre parenthèses. Calcule ensuite les puissances, puis les produits et quotients, puis les sommes.':'Traite d’abord les parenthèses et les puissances. Le signe moins devant une puissance ne fait pas partie de sa base.';q.steps=[{text:variables?'Identifions les valeurs et les groupes avant de calculer.':'Les parenthèses et les puissances déterminent l’ordre des calculs.',html:html(parsed)},...worked(parsed,variables?assigned:undefined)];
  }else if(kind==='equation-bases'){
@@ -119,5 +121,5 @@ function create(kind,random=Math.random){
  }else throw Error('Type inconnu');
  return q;
 }
-const api={kinds,create,tree,evaluate,html,rat,text,worked,checkForm,powerShape,nextStep:reduceOne};if(typeof module!=='undefined')module.exports=api;else root.ExercicesPlus=api;
+const api={kinds,prioritySamples,create,tree,evaluate,html,rat,text,worked,checkForm,powerShape,nextStep:reduceOne};if(typeof module!=='undefined')module.exports=api;else root.ExercicesPlus=api;
 })(typeof globalThis!=='undefined'?globalThis:this);

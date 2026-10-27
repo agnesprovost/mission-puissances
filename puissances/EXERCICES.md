@@ -33,6 +33,15 @@ L’aide remplace les lettres, puis surligne une seule opération. Chaque étape
 
 Deux variantes d’égalité demandent également de réécrire une base avant de retrouver l’exposant : `6^? × 36 = 6^8`, et `(7 × 16)^2 = 7^2 × 2^?`.
 
+Les calculs de priorités comprennent aussi ces quatre références et des variantes générées :
+
+- `−8 × (17−2) − (21−5) × 3 = −168`.
+- `12 ÷ 3 × 2 + 3 × (5−8)^2 = 35` : division et multiplication de même priorité se font de gauche à droite.
+- `2 × 3^2 + (4−1)^2 + 3 × (5−2) = 36`.
+- `4 − 5 × (2^3 + 4 × 3) + (−8)^2 = −32` : la dernière ligne est `4 − 100 + 64`, pas une somme de trois nombres négatifs.
+
+Quand le dernier calcul est une addition ou soustraction d’entiers, l’aide ajoute une droite graduée. Le déplacement rend explicite le sens du signe : `−96 + 64` avance vers la droite jusqu’à `−32` ; `−120 − 48` va vers la gauche jusqu’à `−168`. Cette représentation fait partie de la résolution demandée, jamais de l’énoncé avant réponse.
+
 ## Tests
 
 ```powershell
