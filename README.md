@@ -1,6 +1,41 @@
 # Missions maths · Puissances et Moyennes & stats
 
+Le [cahier des charges consolidé](CAHIER-DES-CHARGES.md) décrit les neuf nouveaux modules, le formalisme transversal, l’analyse de l’existant et l’architecture proposée. Les deux prototypes prévus sont Priorités des opérations, puis Suites de figures — Du raisonnement à la rédaction.
+
+## Prototype Priorités des opérations
+
+Accessible depuis l’accueil ou `priorites/index.html`. Sélectionner un signe puis « Calculer cette opération » ; les étapes sont validées et annulables. Trois modes libres, trois niveaux générés, expressions personnalisées, reprise des expressions à revoir pendant la visite, indices progressifs, démonstration d’une seule étape et comparaison de deux arbres sont disponibles. Aucune sauvegarde de ce parcours après rechargement ; aucun score dans Explorer.
+
+Le moteur commun `commun/expressions.js` utilise un arbre syntaxique immuable et des rationnels BigInt. Il prend en charge les entiers, signes unaires, parenthèses, opérations arithmétiques et exposants entiers de 0 à 12 ; il refuse les divisions par zéro, `0^0`, les exposants négatifs et les écritures hors grammaire. Le calcul littéral et les équations ne sont pas encore implémentés dans ce moteur. Pour cette activité, on traite les parenthèses, les puissances, puis les chaînes de même priorité de gauche à droite ; plusieurs sous-expressions indépendantes peuvent être sélectionnées.
+
+Test : `node priorites/priorites.test.cjs` (cas du cahier des charges, fractions exactes, signes, priorités, 450 exercices reproductibles et parcours du contrôleur). L’essai Safari tactile sur iPhone réel reste à effectuer. Lancer `node scripts/serve.cjs` puis ouvrir `http://127.0.0.1:8080/priorites/`.
+
 Mini-applications interactives pour découvrir intuitivement les mathématiques, adaptées à une élève de 2e secondaire en Belgique.
+
+## Huit ateliers supplémentaires — premières versions
+
+L’accueil donne désormais accès aux neuf catégories ajoutées, dont Priorités. Les huit nouveaux ateliers partagent `commun/ateliers.js`, leur modèle et leurs validations dans `commun/ateliers-moteur.js`, le calcul polynomial exact dans `commun/algebre.js` et les figures à segments partagés dans `commun/figures.js`. Aucun backend ni dépendance externe.
+
+| Atelier | Techniques et supports disponibles |
+|---|---|
+| `litteral/` | Termes semblables sélectionnables et regroupables, produits de monômes, distributivité, parenthèses et signes. Étapes équivalentes acceptées avant la forme développée et réduite. |
+| `relatifs/` | Addition/soustraction, signes des produits, classement de fractions. Droite numérique manipulable et association des signes. |
+| `equations/` | Équations linéaires à solution unique, opérations identiques sur les deux membres, annulation, solutions fractionnaires exactes ; vérification par calcul séparé des deux membres et conclusion. |
+| `factorisation/` | Facteur numérique ou avec lettre, essai de partage des coefficients ; factorisations équivalentes non triviales acceptées, sans imposer le plus grand facteur. |
+| `suites/` | Termes suivants, application directe, question inverse et formule. Chaînes de triangles/carrés/pentagones à côtés partagés ; rédaction et comparaison facultatives pour la formule. |
+| `ensembles/` | Plus petit ensemble d’un nombre, appartenance et inclusion, régions emboîtées. Convention : 0 dans ℕ, inclusion stricte pour ⊂. |
+| `geometrie/` | Lecture de coordonnées avec point exploratoire déplaçable par curseurs ; définitions et affichage des quatre droites du triangle. |
+| `multiples/` | Deux ou trois périodes, déplacement manuel sur une ligne du temps, premier multiple commun strictement positif et unité en secondes. |
+
+Les trois modes sont accessibles librement. Les réglages se replient pour garder l’exercice accessible sur téléphone. Les indices et corrections se dévoilent à la demande, une étape à la fois. Le mode Explorer n’attribue aucun score ; les autres modes permettent de reprendre les erreurs durant la visite. Les parcours ne sont pas encore enregistrés dans Ma progression.
+
+Le formalisme écrit reste ciblé sur la construction de formules dans les suites. Les autres ateliers demandent de calculer ou transformer, sans justification rédigée obligatoire. Le texte libre des suites n’est pas corrigé automatiquement ; les cases de relecture sont une autoévaluation.
+
+Périmètre mathématique initial : polynômes à coefficients rationnels, lettres individuelles, exposants de 0 à 6 dans le parseur algébrique, division uniquement par une constante non nulle ; la grammaire arithmétique conserve son propre périmètre. Un format non pris en charge reçoit une explication ; il ne prouve pas une erreur de raisonnement. Les contrôles d’équivalence se font sur les coefficients exacts, jamais sur quelques valeurs testées. Les résultats exacts restent distincts des décimales approchées dans les aides.
+
+**À compléter :** bilan de compétences persistant, générateurs plus variés, cas d’équations sans solution ou à infinité de solutions, organisation de blocs de rédaction, véritable déplacement d’objets entre ensembles, origine mobile et contrainte sur plusieurs points, triangle déformable, classification des solides/quadrilatères et animation temporelle automatique. Les exemples d’ensembles, de classement et de définitions géométriques utilisent pour l’instant de petits jeux fixes ; leurs deux niveaux ne constituent pas encore deux progressions distinctes.
+
+Vérification : `node commun/ateliers.test.cjs` couvre 1 600 questions générées, les exemples du contrôle retranscrits dans le cahier des charges, les équivalences, les étapes et les parcours des huit contrôleurs. Contrôles effectués aussi dans le navigateur : chargement des vingt techniques, regroupement littéral, opérations sur les deux membres d’une équation, formule équivalente et comparaison ; les huit pages ne débordent pas horizontalement à environ 390 px. Un essai tactile Safari sur iPhone réel reste à faire.
 
 ## Deux missions et progression
 
