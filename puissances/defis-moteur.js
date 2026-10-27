@@ -1,5 +1,6 @@
 (function(root){
 'use strict';
+const extra=typeof module!=='undefined'?require('./exercices-plus.js'):root.ExercicesPlus;
 const pow=(a,n)=>`${a}<sup>${n}</sup>`;
 const frac=(a,b)=>`<span class="math-fraction"><span>${a}</span><span>${b}</span></span>`;
 const factors=(a,n,cancel=0)=>Array.from({length:n},(_,i)=>`<span class="factor ${i<cancel?'crossed':''}">${a}</span>`).join('<span aria-hidden="true"> × </span>')||'1';
@@ -8,6 +9,7 @@ const display=(a,n)=>n<0?frac('1',pow(a,-n)):n===0?'1':pow(a,n);
 const step=(text,html)=>({text,html});
 function lowerBase(a,n){for(let base=2;base<=Math.sqrt(a);base++){let value=base,power=1;while(value<a){value*=base;power++;}if(value===a)return {base,exponent:n*power};}return {base:a,exponent:n};}
 function generate(kind,random=Math.random){
+ if(extra.kinds.includes(kind))return extra.create(kind,random);
  if(['signes','signes-produits','signes-quotients','equation-lineaire','equation-fraction'].includes(kind))return advanced(kind,random);
  const r=(lo,hi)=>lo+Math.floor(random()*(hi-lo+1));
  const a=r(2,7),n=r(2,5),m=r(2,5),k=r(1,6);let q={kind,a,n,m,k};
@@ -39,7 +41,7 @@ function generate(kind,random=Math.random){
  return q;
 }
 const kinds=['produit','quotient','combine','puissance','paires','equation','equation-puissance','scientifique'];
-const levels={1:['produit','quotient','puissance','paires'],2:['produit','quotient','combine','equation','scientifique','signes','signes-produits'],3:['combine','equation-puissance','signes','signes-produits','signes-quotients','equation-lineaire','equation-fraction']};
+const levels={1:['produit','quotient','puissance','paires','fraction-vers-puissance','puissance-fraction','fractions-puissances','phrase-traduction'],2:['produit','quotient','combine','equation','scientifique','signes','signes-produits','fraction-vers-puissance','puissance-fraction','fractions-puissances','fractions-puissances','quotient-signe-puissance','phrase-traduction','phrase-calcul','equation-bases','priorites-puissances'],3:['combine','equation-puissance','signes','signes-produits','signes-quotients','equation-lineaire','equation-fraction','fraction-vers-puissance','puissance-fraction','fractions-puissances','fractions-puissances','quotient-signe-puissance','phrase-traduction','phrase-calcul','equation-bases','priorites-puissances','calcul-litteral']};
 function session(count,random=Math.random,level){const pool=levels[level]||kinds,list=[],seen=new Set();for(let i=0;i<count;i++){let q,tries=0;do{q=generate(pool[i%pool.length],random);}while(seen.has(q.prompt)&&++tries<200);seen.add(q.prompt);list.push(q);}for(let i=list.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[list[i],list[j]]=[list[j],list[i]];}return list;}
 function advanced(kind,random){
  const r=(lo,hi)=>lo+Math.floor(random()*(hi-lo+1));
@@ -74,13 +76,13 @@ function parse(raw){const s=raw.toLowerCase().replace(/\s/g,'').replace(/,/g,'.'
 }
 function expression(s){if(s.length>100||!/^[\d.+*/^()\-]+$/.test(s))return null;let i=0;const add=(a,b,sign=1n)=>[a[0]*b[1]+sign*b[0]*a[1],a[1]*b[1]];
  function atom(){if(s[i]==='('){i++;const value=sum();if(s[i++]!==')')throw Error();return value;}const match=s.slice(i).match(/^\d{1,16}(?:\.\d{1,12})?/);if(!match)throw Error();i+=match[0].length;return decimal(match[0]);}
- function power(){let v=atom();if(s[i]==='^'){i++;const match=s.slice(i).match(/^-?\d{1,3}/);if(!match)throw Error();i+=match[0].length;const n=Number(match[0]);if(Math.abs(n)>120||n<0&&(v[0]!==10n||v[1]!==1n))throw Error();v=n<0?[v[1]**BigInt(-n),v[0]**BigInt(-n)]:[v[0]**BigInt(n),v[1]**BigInt(n)];}return v;}
+ function power(){let v=atom();if(s[i]==='^'){i++;const match=s.slice(i).match(/^-?\d{1,3}/);if(!match)throw Error();i+=match[0].length;const n=Number(match[0]);if(Math.max(v[0].toString(2).length,v[1].toString(2).length)*Math.abs(n)>8192||Math.abs(n)>120||n<0&&(v[0]!==10n||v[1]!==1n))throw Error();v=n<0?[v[1]**BigInt(-n),v[0]**BigInt(-n)]:[v[0]**BigInt(n),v[1]**BigInt(n)];}return v;}
  function signed(){if(s[i]==='-'||s[i]==='+'){const sign=s[i++];const v=signed();return sign==='-'?[-v[0],v[1]]:v;}return power();}
  function product(){let v=signed();while(s[i]==='*'||s[i]==='/'){const op=s[i++],b=signed();if(op==='/'&&b[0]===0n)throw Error();v=op==='*'?[v[0]*b[0],v[1]*b[1]]:[v[0]*b[1],v[1]*b[0]];}return v;}
  function sum(){let v=product();while(s[i]==='+'||s[i]==='-'){const op=s[i++];v=add(v,product(),op==='+'?1n:-1n);}return v;}
  try{const value=sum();return i===s.length&&value[1]!==0n?value:null;}catch{return null;}}
 function decimal(s){const [a,b='']=s.split('.');return [BigInt(a+b),10n**BigInt(b.length)];}
-function check(q,raw){if(raw.length>100)return {valid:false};raw=raw.replace(/−/g,'-');if(raw.includes('=')){const sides=raw.split('=');if(sides.length!==2||sides.some(s=>!s.trim()))return {valid:false};if(q.variable){if(sides[0].trim()!==q.variable)return {valid:false};}else if(q.unknown){if(!/^\s*\?\s*$/.test(sides[0]))return {valid:false};}else{const left=parse(sides[0]),expected=parse(q.answer);if(!left)return {valid:false};if(left[0]*expected[1]!==expected[0]*left[1])return {valid:true,correct:false};}raw=sides[1];}raw=raw.trim().replace(/^\+/,'');if(q.unknown){if(!/^\s*\d{1,2}\s*$/.test(raw))return {valid:false};return {valid:true,correct:Number(raw)===Number(q.answer)};}
+function check(q,raw){if(raw.length>100)return {valid:false};raw=raw.replace(/−/g,'-');if(q.form)return extra.checkForm(q,raw);if(raw.includes('=')){const sides=raw.split('=');if(sides.length!==2||sides.some(s=>!s.trim()))return {valid:false};if(q.variable){if(sides[0].trim()!==q.variable)return {valid:false};}else if(q.unknown){if(!/^\s*\?\s*$/.test(sides[0]))return {valid:false};}else{const left=parse(sides[0]),expected=parse(q.answer);if(!left)return {valid:false};if(left[0]*expected[1]!==expected[0]*left[1])return {valid:true,correct:false};}raw=sides[1];}raw=raw.trim().replace(/^\+/,'');if(q.unknown){if(!/^\s*\d{1,2}\s*$/.test(raw))return {valid:false};return {valid:true,correct:Number(raw)===Number(q.answer)};}
  const value=parse(raw),expected=parse(q.answer);if(!value)return {valid:false};if(q.kind==='scientifique'){const match=raw.replace(/\s/g,'').replace(',','.').match(/^(\d+(?:\.\d+)?)[*×·xX]10\^([+-]?\d{1,2})$/);if(!match||Number(match[1])<1||Number(match[1])>=10)return {valid:true,correct:false};}
  const correct=value[0]*expected[1]===expected[0]*value[1];
  const normalized=raw.replace(/\s/g,'').replace(/÷/g,'/').replace(/²/g,'^2').replace(/³/g,'^3').replace(/\(([-+]?\d+(?:\^\d+)?)\)/g,'$1');

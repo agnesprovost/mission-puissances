@@ -83,3 +83,11 @@ els.denominator.onfocus();els.denominator.selectionStart=els.denominator.selecti
 els.form.onsubmit({preventDefault(){}});assert.equal(els.feedback.className,'status feedback-success');assert.equal(els.denominator.disabled,true);
 vm.runInContext('render()',context);assert.equal(els['fraction-input'].hidden,true);assert.equal(els.denominator.value,'');
 console.log('OK : trois niveaux, 1 000 exercices signés et équations, parité, fractions saisies verticalement et clavier dans le dénominateur.');
+vm.runInContext("questions=[{kind:'fraction-vers-puissance',form:'fraction-power',answer:'(11/10)^2',power:{numerator:11,denominator:10,exponent:2},prompt:'121/100',instruction:'Écris une seule puissance.',format:'Une puissance de fraction',steps:[]}];states=[{attempts:0,hint:false,shown:0,solved:false}];position=0;render();",context);unlock();
+els['fraction-toggle'].onclick();els.numerator.value='11';els.denominator.value='10';els['fraction-exponent'].value='2';els['fraction-exponent'].oninput();assert(els.preview.innerHTML.includes('math-fraction'));assert(els.preview.innerHTML.includes('<sup>2</sup>'));
+els.form.onsubmit({preventDefault(){}});assert.equal(els.feedback.className,'status feedback-success');assert(els['fraction-exponent'].disabled);
+vm.runInContext("questions=[{kind:'phrase-traduction',form:'translation',expression:'-(-3)^3',answer:'27',prompt:'L’opposé du cube de l’opposé de 3.',instruction:'Traduis sans effectuer.',steps:[]}];states=[{attempts:0,hint:false,shown:0,solved:false}];position=0;render();",context);unlock();
+assert.equal(els['answer-label'].textContent,'Expression à écrire');assert(els['fraction-toggle'].hidden);assert.equal(els['fraction-exponent'].value,'');
+els.answer.value='27';els.form.onsubmit({preventDefault(){}});assert.equal(els.feedback.className,'status feedback-partial');assert(!vm.runInContext('state().firstResponse.correct',context));
+els.answer.value='-(-3)^3';els.form.onsubmit({preventDefault(){}});assert.equal(els.feedback.className,'status feedback-success');
+console.log('OK : exposant de toute la fraction, remise à zéro, consigne de traduction et score initial distinct après correction.');
