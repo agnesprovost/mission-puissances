@@ -16,7 +16,13 @@ function clean(t){if(t.type==='number')return t;if(t.type==='binary')return {...
 function evaluate(t){if(t.type==='number')return t.value;if(t.type==='negative'){const v=evaluate(t.child);return rational(-v.n,v.d);}if(t.type==='group')return evaluate(t.child);return calc(t.op,evaluate(t.left),evaluate(t.right));}
 function operations(t){let rows=[];function walk(n,inside=false){if(n.type==='binary'){rows.push({node:n,inside,ready:n.left.type==='number'&&n.right.type==='number'});walk(n.left,inside);walk(n.right,inside);}else if(n.child)walk(n.child,inside||n.type==='group');}walk(t);return rows;}
 const priority=op=>op==='^'?3:['*','/'].includes(op)?2:1;
-function choices(t){const rows=operations(t),inGroups=rows.some(r=>r.inside),pool=rows.filter(r=>!inGroups||r.inside);const p=Math.max(0,...pool.map(r=>priority(r.node.op)));return pool.filter(r=>r.ready&&priority(r.node.op)===p).map(r=>r.node.id);}
+function choices(t){
+ // Work inside innermost parentheses before ranking operations. An outer
+ // power must never hide the addition needed to calculate its grouped base.
+ function groups(n){const nested=n.type==='binary'?[...groups(n.left),...groups(n.right)]:n.child?groups(n.child):[];return n.type==='group'&&!nested.length?[n.child]:nested;}
+ const scopes=groups(t);
+ return (scopes.length?scopes:[t]).flatMap(scope=>{const rows=operations(scope),p=Math.max(0,...rows.map(r=>priority(r.node.op)));return rows.filter(r=>r.ready&&priority(r.node.op)===p).map(r=>r.node.id);});
+}
 function transform(t,id){const row=operations(t).find(r=>r.node.id===id);if(!row)return {ok:false,message:'Choisis une opération dans l’expression.'};if(!choices(t).includes(id))return {ok:false,message:!row.ready?'Calcule d’abord les opérations contenues dans cette partie. À même priorité, avance de gauche à droite dans une chaîne.':operations(t).some(r=>r.inside)?'Traite d’abord le contenu des parenthèses.':'Cherche d’abord les puissances, puis les multiplications et divisions, avant les additions et soustractions.'};try{const value=calc(row.node.op,row.node.left.value,row.node.right.value);function replace(n){if(n.id===id)return {id:n.id,type:'number',value};if(n.type==='binary')return {...n,left:replace(n.left),right:replace(n.right)};return n.child?{...n,child:replace(n.child)}:n;}return {ok:true,tree:clean(replace(t)),message:'Cette opération respecte les priorités.'};}catch(e){return {ok:false,message:e.message};}}
 const symbols={'+':'+','-':'−','*':'×','/':'÷','^':'^'};
 function text(t){if(t.type==='number')return t.value.n<0n||t.value.d!==1n?`(${format(t.value)})`:format(t.value);if(t.type==='group')return `(${text(t.child)})`;if(t.type==='negative')return `−${text(t.child)}`;return `${text(t.left)} ${symbols[t.op]} ${text(t.right)}`;}

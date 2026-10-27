@@ -32,6 +32,9 @@ assert(!W.check({type:'formula',answer:'3n+1'},'s=130').correct);
 assert(!W.check({type:'formula',answer:'3n+1'},'s=3n').correct);
 assert(!W.check({type:'formula',answer:'3n+1'},'3n+1').valid);
 assert.equal(W.lcm(W.lcm(8,6),3),24);
+for(const [input,expected] of [['3,0+0','3'],['−1,25+0,25','-1'],['1.5*2','3'],['2/0,5','4'],['0,1+0,2','3/10'],['.5 + ,5','1']])assert(W.check({type:'numeric',answer:expected},input).complete,input);
+assert(!W.check({type:'numeric',answer:'30'},'3,0+0').correct,'decimal expressions must not be reinterpreted as concatenated integers');
+for(const input of ['1,2,3','2.0.0','1,5/0','2,5a'])assert(!W.check({type:'numeric',answer:'1'},input).valid,input);
 for(const sides of [3,4,5])for(let count=1;count<=7;count++){const edges=F.chain(sides,count);assert.equal(edges.length,(sides-1)*count+1);assert.equal(edges.filter(e=>e.new).length,count===1?0:sides-1);}
 function answer(q){if(q.type==='coordinates')return {x:String(q.x),y:String(q.y)};if(q.type==='verify')return {left:q.left,right:q.right,conclusion:q.answer};if(q.type==='formula')return 's='+q.answer;if(q.type==='equation')return 'x='+q.answer;return q.answer;}
 let seed=421;const random=()=>((seed=(seed*1664525+1013904223)>>>0)/4294967296);let count=0;

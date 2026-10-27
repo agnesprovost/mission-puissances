@@ -4,6 +4,9 @@ function solve(source){let t=E.parse(source),count=0;const expected=E.format(E.e
 for(const [s,v] of [['24 ÷ 12 × 3 + 5²','31'],['−2 × (−3) × (−4) − 8','-32'],['(8 × 2 + 1²) + 4','21'],['4 × 7⁰ + (6 + 4)²','104'],['-3^2','-9'],['(-3)^2','9'],['8/4*2','4'],['8-3+2','7'],['10/3','10/3'],['1/3+1/6','1/2'],['2^3^2','512'],['8+3*4','20'],['(8+3)*4','44'],['2*(3+(4*5))','46']])assert.equal(solve(s.replace('⁰','^0')),v,s);
 let t=E.parse('24/12*3+5^2');const multiply=E.operations(t).find(r=>r.node.op==='*');assert(!E.transform(t,multiply.node.id).ok);const power=E.operations(t).find(r=>r.node.op==='^');assert(E.transform(t,power.node.id).ok);
 assert.equal(E.choices(E.parse('2*3+4*5')).length,2,'independent valid choices');
+for(const [source,expected] of [['((2+3)^2)','25'],['2*((2+3)^2)','50'],['(2*(3+4))','14'],['((2+3)^2)+(4+5)','34'],['(2^2+(3+4))','11']])assert.equal(solve(source),expected,source);
+t=E.parse('((2+3)^2)');assert.equal(E.text(E.operations(t).find(r=>r.node.id===E.choices(t)[0]).node),'2 + 3');
+assert.equal(E.choices(E.parse('(2+3)+(4*5)')).length,2,'independent groups may progress separately');
 t=E.parse('(2+3)+4^2');assert(E.choices(t).every(id=>E.operations(t).find(r=>r.node.id===id).inside));
 for(const source of ['1/0','0^0','2^-1','2^13'])assert.throws(()=>E.evaluate(E.parse(source)));
 for(const source of ['','alert(1)','2a','(2+3','2++','2.5','2;3'])assert.throws(()=>E.parse(source));
