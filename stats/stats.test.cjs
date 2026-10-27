@@ -25,7 +25,7 @@ assert(G.pie(['A','B'],[0,0]).includes('Aucune'));assert(!G.pie(['<img>'],[1]).i
 // Run a full series through the controller with a small DOM adapter.
 class E{constructor(){this.value='20';this.children=[];this.selectors={};}querySelector(s){return this.selectors[s]??=new E();}replaceChildren(){this.children=[];}append(...v){this.children.push(...v);}focus(){}}
 const els={},dom={getElementById:id=>els[id]??=new E(),createElement:()=>new E(),querySelector:()=>null,querySelectorAll:()=>[]};dom.getElementById('level').value='1';let storedResult;
-const browser={Stats:S,Graphiques:G,Intuition:I,StatsVue:{visual:()=>''},Progression:{timer:()=>({stop:()=>123}),duration:P.duration,finish:(...args)=>{const output=P.finish(...args);storedResult=output.row;return output;}},document:dom,URLSearchParams,location:{search:'?nombre=20&niveau=1'}};
+const browser={Stats:S,Graphiques:G,Intuition:I,StatsVue:{visual:()=>''},Progression:{captureFirst:P.captureFirst,timer:()=>({stop:()=>123}),duration:P.duration,finish:(...args)=>{const output=P.finish(...args);storedResult=output.row;return output;}},document:dom,URLSearchParams,location:{search:'?nombre=20&niveau=1'}};
 vm.createContext(browser);vm.runInContext(fs.readFileSync(__dirname+'/defis.js','utf8'),browser);assert.equal(els.resolution.hidden,true);
 for(let i=0;i<20;i++){
  const q=vm.runInContext('current()',browser),widget=els.intuition;
@@ -33,5 +33,5 @@ for(let i=0;i<20;i++){
  if(i===1)els.hint.onclick();if(i===2){els.show.onclick();while(!els.step.hidden)els.step.onclick();}if(i===3){els.skip.onclick();continue;}
  els.answer.value=String(q.answer);els.form.onsubmit({preventDefault(){}});assert.equal(els.feedback.className,'status feedback-success');els.next.onclick();
 }
-assert.equal(els.summary.hidden,false);assert.equal(storedResult.solo,17);assert.equal(storedResult.hint,1);assert.equal(storedResult.assisted,1);assert.equal(storedResult.skipped,1);assert.equal(storedResult.predictions,1);assert.equal(storedResult.bonus,1);assert.equal(storedResult.seconds,123);
-console.log('OK : calculs statistiques, 1 560 questions, séries 20/50/100, arrondis, bonus, sauvegarde/import, stockage indisponible, temps actif et séance complète.');
+assert.equal(els.summary.hidden,false);assert.equal(storedResult.solo,17);assert.equal(storedResult.hint,1);assert.equal(storedResult.assisted,1);assert.equal(storedResult.skipped,1);assert.equal(storedResult.predictions,1);assert.equal(storedResult.bonus,1);assert.equal(storedResult.seconds,123);assert.equal(storedResult.initialCorrect,17);assert.equal(storedResult.initialAnswered,19);
+console.log('OK : calculs statistiques, 1 800 questions, séries 20/50/100, arrondis, bonus, sauvegarde/import, stockage indisponible, temps actif et séance complète.');
