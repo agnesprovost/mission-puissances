@@ -1,0 +1,11 @@
+'use strict';
+const $=id=>document.getElementById(id);
+let original,exponent,timer,hints;
+const format=value=>Number(value.toPrecision(12)).toLocaleString('fr-BE',{maximumFractionDigits:12});
+const coefficient=()=>Number((original/10**exponent).toPrecision(12));
+function draw(){const c=coefficient();$('number').innerHTML=`${format(c)} × 10<sup>${exponent}</sup>`;$('value').textContent=`Valeur conservée : ${format(original)}`;$('left').disabled=exponent>=9;$('right').disabled=exponent<=-9;const ready=c>=1&&c<10;$('result').hidden=!ready;if(ready){$('result').innerHTML=`<strong>Tu as trouvé : ${format(c)} × 10<sup>${exponent}</sup></strong><p>Le premier nombre est entre 1 inclus et 10 exclu : c’est une notation scientifique.</p><p>${exponent<0?`10<sup>${exponent}</sup> = 1 / 10<sup>${-exponent}</sup>. Un exposant négatif signifie une division par une puissance de 10.`:exponent===0?'10⁰ = 1 : la valeur était déjà entre 1 et 10.':`La puissance de 10 multiplie le premier nombre par ${format(10**exponent)}.`}</p>`;clearTimeout(timer);timer=null;$('demo').disabled=true;}else $('demo').disabled=!!timer;}
+function reset(){clearTimeout(timer);timer=null;original=Number($('example').value);exponent=0;hints=0;$('status').textContent='Choisis dans quel sens déplacer la virgule.';draw();}
+function move(direction){exponent+=direction;$('status').textContent=direction>0?'La virgule va à gauche : le premier nombre est divisé par 10. L’exposant augmente de 1 pour compenser.':'La virgule va à droite : le premier nombre est multiplié par 10. L’exposant diminue de 1 pour compenser.';draw();}
+$('left').onclick=()=>move(1);$('right').onclick=()=>move(-1);$('reset').onclick=reset;$('example').onchange=reset;
+$('hint').onclick=()=>{$('status').textContent=hints++===0?'Si le premier nombre est trop grand, déplace la virgule à gauche. S’il est plus petit que 1, déplace-la à droite.':'Le produit doit rester identique : diviser le premier nombre par 10 oblige à multiplier la puissance de 10 par 10.';};
+$('demo').onclick=()=>{if(timer)return;function next(){const c=coefficient();if(c>=1&&c<10){draw();return;}move(c>=10?1:-1);if($('result').hidden)timer=setTimeout(next,850);}timer=setTimeout(next,350);$('demo').disabled=true;};reset();

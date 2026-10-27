@@ -17,3 +17,5 @@ Examiner `puissances/multiplication.html`, vérifier qu'il affiche bien huit blo
 
 ## Suite
 Voir `README.md` pour la feuille de route. Maintenir des animations indépendantes, accessibles depuis la page d'accueil.
+
+La division autorise m > n : les facteurs restants restent au dénominateur, sous la forme 1 / a^(m-n), avec un exposant positif.
