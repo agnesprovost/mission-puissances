@@ -1,5 +1,6 @@
 (function(root){
 'use strict';
+const ecarts=typeof module!=='undefined'?require('./ecarts.js'):root.Ecarts;
 const sum=values=>values.reduce((a,b)=>a+b,0);
 function mean(values){if(!values.length)throw Error('Il faut au moins une observation');return sum(values)/values.length;}
 function gcd(a,b){while(b){[a,b]=[b,a%b];}return Math.abs(a);}
@@ -11,9 +12,20 @@ function grouped(values,counts,relation,limit){return sum(counts.filter((_,i)=>r
 const fmt=n=>Number(n.toFixed(4)).toLocaleString('fr-BE',{maximumFractionDigits:4});
 const blocks=values=>({kind:'mean',labels:values.map((_,i)=>String(i+1)),values});
 const step=(text,visual)=>({text,visual});
-const pools={1:['moyenne','manquante','effectif','pourcentage','angle'],2:['correction','ponderee','frequence','seuil','inverse-angle','tableau'],3:['moyenne-ajout','correction','ponderee','frequence','seuil','inverse-angle','tableau','graphique']};
+const pools={1:['moyenne','manquante','effectif','pourcentage','angle','moyenne-ecarts','manquante-ecarts'],2:['correction','ponderee','frequence','seuil','inverse-angle','tableau','moyenne-ecarts','manquante-ecarts'],3:['moyenne-ajout','correction','ponderee','frequence','seuil','inverse-angle','tableau','graphique','moyenne-ecarts','manquante-ecarts']};
 function generate(kind,random=Math.random){const r=(a,b)=>a+Math.floor(random()*(b-a+1));const q={kind};
- if(kind==='moyenne'||kind==='manquante'||kind==='moyenne-ajout'){
+ if(kind==='moyenne-ecarts'||kind==='manquante-ecarts'){
+  const reference=r(1200,1900);q.reference=reference;
+  if(kind==='moyenne-ecarts'){
+   const d=r(2,5),e=r(1,2),variant=r(0,1),offsets=variant?[-3,-1,0,2,7]:[-d,-e,0,e,d],values=offsets.map(v=>reference+v);q.values=values;q.answer=ecarts.mean(values,reference);
+   q.text=`Les valeurs sont ${values.map(fmt).join(', ')}. Trouve leur moyenne en utilisant les petits écarts autour d’un repère, sans additionner toutes les grandes valeurs.`;q.hint='Choisis un nombre proche des observations. Compare seulement les unités en plus ou en moins de ce repère.';
+   q.steps=[step(`Choisissons ${fmt(reference)} comme repère. Seules les petites variations comptent.`,{kind:'balance',values,reference}),step(`Les écarts sont ${offsets.map(ecarts.signed).join(', ')}. ${variant?'Il reste +5 pour 5 observations : décaler le repère de +1 enlève 1 à chaque écart.':'Ils s’annulent deux par deux : le repère est déjà la moyenne.'}`),step(`La moyenne est ${fmt(q.answer)}. Les écarts autour de cette valeur se compensent.`,{kind:'balance',values,reference:q.answer})];
+  }else{
+   const values=[reference-r(1,4),reference-r(1,3),reference+r(1,5)],a=ecarts.analyze(values,reference);q.values=values;q.answer=ecarts.missing(values,reference);
+   q.text=`Quatre valeurs ont une moyenne de ${fmt(reference)}. Trois valeurs sont ${values.map(fmt).join(', ')}. Retrouve la quatrième en compensant les écarts à la moyenne.`;q.hint='Une unité en plus compense une unité en moins. La valeur cachée doit apporter l’opposé de l’écart total des valeurs connues.';
+   q.steps=[step(`Autour de ${fmt(reference)}, les écarts connus sont ${a.deltas.map(ecarts.signed).join(', ')}.`,{kind:'balance',values,reference}),step(`L’écart total connu est ${ecarts.signed(a.net)}. Il faut donc ${ecarts.signed(-a.net)} pour équilibrer, sans recalculer le total des grandes valeurs.`),step(`Valeur cachée : ${fmt(reference)} ${a.net>0?'−':'+'} ${Math.abs(a.net)} = ${fmt(q.answer)}.`,{kind:'balance',values:[...values,q.answer],reference,candidateIndex:values.length})];
+  }
+ }else if(kind==='moyenne'||kind==='manquante'||kind==='moyenne-ajout'){
   const target=r(6,16),d=r(1,4),values=[target-d,target+d,target-2,target+2];
   if(kind==='moyenne'){q.text=`Quatre observations : ${values.join(', ')}. Quelle est leur moyenne ?`;q.answer=target;q.unit='';q.hint='Imagine redistribuer toutes les unités sans changer le total.';q.steps=[step('Chaque colonne représente une observation.',blocks(values)),step(`Le total est ${sum(values)}. Répartissons-le entre 4 observations.`,{kind:'bars',labels:['1','2','3','4'],values:[target,target,target,target]}),step(`Moyenne = ${sum(values)} ÷ 4 = ${target}.`)];}
   else if(kind==='manquante'){q.text=`Quatre notes ont une moyenne de ${target}. Trois notes sont ${values.slice(0,3).join(', ')}. Retrouve la quatrième.`;q.answer=values[3];q.hint='La moyenne et le nombre de notes permettent de retrouver le total.';q.steps=[step(`Pour 4 notes de moyenne ${target}, il faut un total de ${target*4}.`,blocks([target,target,target,target])),step(`Les notes connues totalisent ${sum(values.slice(0,3))}. Il manque ${target*4} − ${sum(values.slice(0,3))}.`,blocks(values.slice(0,3))),step(`La note cachée vaut ${q.answer}.`,blocks(values))];}

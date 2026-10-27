@@ -1,6 +1,7 @@
 (function(root){
 'use strict';
 function visual(v){if(!v)return '';const G=root.Graphiques;
+ if(v.kind==='balance')return Ecarts.visual(v.values,v.reference,{candidateIndex:v.candidateIndex??-1});
  if(v.kind==='bars')return G.bars(v.labels,v.values);
  if(v.kind==='mean')return G.average(v.values,v.labels);
  if(v.kind==='simplification'){

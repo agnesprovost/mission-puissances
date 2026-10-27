@@ -34,4 +34,4 @@ for(let i=0;i<20;i++){
  els.answer.value=String(q.answer);els.form.onsubmit({preventDefault(){}});assert.equal(els.feedback.className,'status feedback-success');els.next.onclick();
 }
 assert.equal(els.summary.hidden,false);assert.equal(storedResult.solo,17);assert.equal(storedResult.hint,1);assert.equal(storedResult.assisted,1);assert.equal(storedResult.skipped,1);assert.equal(storedResult.predictions,1);assert.equal(storedResult.bonus,1);assert.equal(storedResult.seconds,123);assert.equal(storedResult.initialCorrect,17);assert.equal(storedResult.initialAnswered,19);
-console.log('OK : calculs statistiques, 1 560 questions, séries 20/50/100, arrondis, bonus, sauvegarde/import, stockage indisponible, temps actif et séance complète.');
+console.log('OK : calculs statistiques, 1 800 questions, séries 20/50/100, arrondis, bonus, sauvegarde/import, stockage indisponible, temps actif et séance complète.');
