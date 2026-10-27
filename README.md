@@ -22,7 +22,7 @@ Depuis l’accueil, choisir 20, 50 ou 100 exercices pour démarrer une séance. 
 
 Vérifications : `node puissances/defis.test.cjs` (génération, calculs, saisies et déroulement d’une séance avec DOM simulé). Le rendu navigateur et Safari iOS restent à valider réellement.
 
-Ouvrir `index.html` dans un navigateur sur ordinateur, ou servir le dossier via un serveur local. La publication GitHub Pages est reportée ; le site reste utilisable localement et hors ligne.
+Ouvrir `index.html` dans un navigateur sur ordinateur, ou servir le dossier via un serveur local. Le site reste utilisable localement et hors ligne.
 
 ## Feuille de route
 
@@ -59,3 +59,10 @@ Le niveau se choisit à l’accueil ou avant une nouvelle séance, pour 20, 50 o
 Les signes moins concernent les bases négatives et les opposés (ex. (−3)^4 contre −(3)^4), pas des exercices de soustraction de termes. Les exercices signés demandent une valeur numérique ou une fraction réduite ; les autres calculs de puissances gardent la réduction de la base. L’aide explique les parenthèses, la parité, les produits ou quotients de signes et les opérations effectuées des deux côtés des équations. Les exposants négatifs restent réservés à la notation scientifique.
 
 Le bouton Écrire une fraction propose un champ numérateur au-dessus d’un champ dénominateur, avec une vraie barre. Les boutons de signes et exposants agissent sur le champ sélectionné. L’aperçu reproduit la fraction et la correction utilise sa valeur exacte.
+
+## Publication
+
+- Site : https://agnesprovost.github.io/mission-puissances/
+- Dépôt public : https://github.com/agnesprovost/mission-puissances
+- GitHub Pages publie la racine de la branche `develop`.
+- Pour une mise à jour : vérifier les exercices avec `node puissances/defis.test.cjs`, créer un commit puis exécuter `git push`. GitHub Pages republie ensuite le site.
