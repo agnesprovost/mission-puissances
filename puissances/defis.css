@@ -13,3 +13,5 @@
 .operation-focus{background:#fff0b3;color:#523d00;outline:2px solid #b77b0d;border-radius:5px;padding:3px}.work-before,.work-after{padding:10px 0}.work-after{border-top:1px solid #dce1ee;font-weight:700}
 
 .number-line{margin:16px 0;padding:14px;background:#f2f5ff;border-radius:12px}.number-line figcaption{font-size:15px;line-height:1.5}.number-line svg{width:100%;max-height:150px;display:block}.number-line svg text{font:15px system-ui;fill:#25283b}
+
+.preferred-answer{margin-top:12px;padding-top:10px;border-top:1px solid #95cba4;font-size:22px}.preferred-answer>span:first-child{font-size:15px}

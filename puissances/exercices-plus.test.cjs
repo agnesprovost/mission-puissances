@@ -4,7 +4,9 @@ const power=(p,d,n,answer)=>({form:'fraction-power',power:{numerator:p,denominat
 const square=power(11,10,2,'(11/10)^2'),negative=power(1,2,5,'(-1/2)^5');
 for(const answer of ['(11/10)^2','((11)/(10))^2','(-11/10)^2']){const r=D.check(square,answer);assert(r.correct&&r.reduced,answer);}
 assert(D.check(square,'121/100').correct);assert(!D.check(square,'121/100').reduced);assert(!D.check(square,'11^2/10^2').reduced);assert(!D.check(square,'(10/11)^2').correct);
-for(const answer of ['(-1/2)^5','-(1/2)^5','1/(-2)^5'])assert(D.check(negative,answer).correct&&D.check(negative,answer).reduced,answer);
+for(const answer of ['(-1/2)^5','-(1/2)^5','1/(-2)^5','-1/2^5'])assert(D.check(negative,answer).correct&&D.check(negative,answer).reduced,answer);
+assert.equal(E.preferredFractionPower(-1,2,5),'-1/2^5');assert.equal(E.preferredFractionPower(-1,2,4),'1/2^4');assert.equal(E.preferredFractionPower(1,3,3),'1/3^3');assert.equal(E.preferredFractionPower(-2,1,3),'-2^3');assert.equal(E.preferredFractionPower(2,3,1),'2/3');
+const even=power(1,2,4,'1/2^4');assert(D.check(even,'(-1/2)^4').correct&&D.check(even,'(-1/2)^4').reduced);assert(!D.check(even,'-1/2^4').correct);
 assert(!D.check(negative,'(1/2)^5').correct);assert(!D.check(negative,'-1/32').reduced);
 const reciprocal=power(1,3,3,'-1/3^3');assert(D.check(reciprocal,'1/(-3)^3').reduced);assert(D.check(reciprocal,'1/(-3)^3').correct);
 assert.deepEqual(I.classify(negative.answer,D.parse),{magnitude:'less',sign:'negative'});

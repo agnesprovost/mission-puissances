@@ -4,7 +4,7 @@ Les séries gardent les exercices précédents et ajoutent neuf familles dans le
 
 ## Fractions et intuition
 
-- **Fraction vers puissance** : retrouver une puissance commune au numérateur et au dénominateur. Exemples : `121/100 = (11/10)^2` ; `−1/32 = (−1/2)^5`.
+- **Fraction vers puissance** : retrouver une puissance commune au numérateur et au dénominateur. Exemples : `121/100 = (11/10)^2` ; `−1/32 = −1/2^5`. La forme `(−1/2)^5` reste acceptée, mais l’aide et le retour après réussite privilégient `−1/2^5`, qui simplifie la puissance de 1. Avec un exposant pair, `(−1/2)^4 = 1/2^4` : le signe moins disparaît.
 - **Puissance de fraction** : développer les facteurs, décider du signe et calculer une fraction réduite.
 - **Quotient de puissances de fractions** : simplifier les facteurs identiques ; si les facteurs restants sont en bas, inverser la fraction et conserver un exposant positif.
 - **Quotient signé sous forme de puissance** : séparer la règle des signes de la simplification des valeurs absolues. Par exemple `(−3)^9 / (−3)^12 = −1/3^3`, également écrit `1/(−3)^3`.

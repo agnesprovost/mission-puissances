@@ -8,6 +8,7 @@ function rat(n,d=1n){if(!d)throw Error('Dénominateur nul');if(d<0n){n=-n;d=-d;}
 const text=v=>v[1]===1n?String(v[0]):`${v[0]}/${v[1]}`;
 const val=v=>['val',String(v[0]),String(v[1])];
 const nodeValue=t=>t[0]==='val'?rat(BigInt(t[1]),BigInt(t[2])):t[0]==='num'?rat(BigInt(t[1])):null;
+function preferredFractionPower(p,d,n){if(n===0)return '1';if(n===1)return text(rat(BigInt(p),BigInt(d)));const negative=p<0&&n%2===1,sign=negative?'-':'';if(Math.abs(p)===1)return `${sign}1/${d}^${n}`;if(d===1)return `${sign}${Math.abs(p)}^${n}`;return `(${p}/${d})^${n}`;}
 function tree(raw,{variables=false}={}){
  const s=String(raw).replace(/\s/g,'').replace(/[×·xX]/g,'*').replace(/÷/g,'/').replace(/−/g,'-').replace(/²/g,'^2').replace(/³/g,'^3');
  if(s.length>100||!s||!(variables?/^[\d+*/^()ab-]+$/:/^[\d+*/^()-]+$/).test(s))return null;let i=0;
@@ -76,19 +77,21 @@ function create(kind,random=Math.random){
  if(['fraction-vers-puissance','puissance-fraction','fractions-puissances'].includes(kind)){
   const [p,d]=choose([[1,2],[2,3],[3,2],[3,4],[4,3],[11,10],[1,3],[5,2],[2,5]]),negative=r(0,1)===1,n=r(2,5),signed=negative?-p:p;
   if(kind==='fraction-vers-puissance'||kind==='puissance-fraction'){
-   const expression=`(${signed}/${d})^${n}`,value=evaluate(tree(expression));q.answer=kind==='fraction-vers-puissance'?expression:text(value);
+   const expression=`(${signed}/${d})^${n}`,value=evaluate(tree(expression));q.answer=kind==='fraction-vers-puissance'?preferredFractionPower(signed,d,n):text(value);
    q.prompt=kind==='fraction-vers-puissance'?html(val(value)):html(tree(expression));
    q.numeric=kind==='puissance-fraction';if(!q.numeric){q.form='fraction-power';q.power={numerator:p,denominator:d,exponent:n};q.instruction='Écris cette fraction sous la forme d’une seule puissance.';q.format='Garde la puissance de toute la fraction : par exemple (2/3)^4. N’effectue pas la puissance.';}
    q.hint=negative?'Observe le signe : une base négative élevée à une puissance impaire reste négative. Cherche des facteurs identiques en haut et en bas.':'Cherche combien de facteurs identiques se répètent au numérateur et au dénominateur.';
    const repeated=(a,n)=>Array.from({length:n},()=>`<span class="factor">${a<0?'(−'+(-a)+')':a}</span>`).join(' × ');
    q.steps=[{text:`Le numérateur et le dénominateur contiennent chacun ${n} facteurs.`,html:frac(repeated(signed,n),repeated(d,n))},{text:'Associons un facteur du haut à un facteur du bas : chaque paire forme la même fraction.',html:Array.from({length:n},()=>`<span class="factor-group">${frac(String(signed).replace('-','−'),d)}</span>`).join(' × ')},{text:`La fraction est répétée ${n} fois. L’exposant porte sur toute la fraction.`,html:html(tree(expression))},...(q.numeric?[{text:'Effectuons les puissances et gardons une fraction réduite.',html:html(val(value))}]:[])];
+   if(!q.numeric&&p===1){q.instruction='Écris la fraction avec une puissance au dénominateur.';q.format='Privilégie 1 sur une puissance, avec le bon signe. La puissance de toute la fraction reste acceptée.';q.preferredHtml=html(tree(q.answer));q.steps.push({text:`La puissance de 1 reste 1. ${signed<0?(n%2?'L’exposant impair conserve le signe moins.':'L’exposant pair donne un signe positif.'):'Le signe reste positif.'} On conserve seulement la puissance au dénominateur.`,html:q.preferredHtml});}
   }else{
    const m=choose([n-1,n,n+1,n+2]),delta=n-m,base=delta<0?`${negative?-d:d}/${p}`:`${signed}/${d}`,exponent=Math.abs(delta),expression=delta===0?'1':`(${base})^${exponent}`;
-   q.form='fraction-power';q.power={numerator:delta<0?d:p,denominator:delta<0?p:d,exponent};q.answer=expression;q.prompt=frac(html(tree(`(${signed}/${d})^${n}`)),html(tree(`(${signed}/${d})^${m}`)));
+   q.form='fraction-power';q.power={numerator:delta<0?d:p,denominator:delta<0?p:d,exponent};q.answer=preferredFractionPower(delta<0?(negative?-d:d):signed,delta<0?p:d,exponent);q.prompt=frac(html(tree(`(${signed}/${d})^${n}`)),html(tree(`(${signed}/${d})^${m}`)));
    q.instruction='Simplifie en une puissance de fraction, ou en 1.';q.format='Si des facteurs restent en bas, inverse la fraction et garde un exposant positif. Par exemple (3/2)^2 ou 1.';
    q.hint='Une fraction entière est ici la base. Annule les facteurs identiques du haut et du bas, puis regarde où il en reste.';
    const repeated=(count,cancel=0)=>Array.from({length:count},(_,i)=>`<span class="factor-group ${i<cancel?'crossed-group':''}">${frac(String(signed).replace('-','−'),d)}</span>`).join(' × ');
    q.steps=[{text:'Développons les puissances comme des produits de fractions identiques.',html:frac(repeated(n),repeated(m))},{text:`Simplifions ${Math.min(n,m)} paires de fractions identiques non nulles.`,html:frac(repeated(n,Math.min(n,m)),repeated(m,Math.min(n,m)))},{text:delta===0?'Tous les facteurs se simplifient : il reste 1.':delta<0?'Les facteurs restants sont au dénominateur. Prendre leur inverse évite un exposant négatif.':'Les facteurs restants sont au numérateur.',html:html(tree(expression))}];
+   if(expression!==q.answer){q.preferredHtml=html(tree(q.answer));q.steps.push({text:'On simplifie les puissances de 1 et les exposants égaux à 1. Le signe suit la parité de l’exposant.',html:q.preferredHtml});}
   }
  }else if(kind==='quotient-signe-puissance'){
   const a=choose([2,3,5,6,7]),n=r(2,8),m=choose([n-2,n,n+2,n+3]),left=r(0,1)===1,right=r(0,1)===1,sign=(left&&n%2?-1:1)*(right&&m%2?-1:1),delta=n-m,exponent=Math.abs(delta);
@@ -121,5 +124,5 @@ function create(kind,random=Math.random){
  }else throw Error('Type inconnu');
  return q;
 }
-const api={kinds,prioritySamples,create,tree,evaluate,html,rat,text,worked,checkForm,powerShape,nextStep:reduceOne};if(typeof module!=='undefined')module.exports=api;else root.ExercicesPlus=api;
+const api={kinds,prioritySamples,create,tree,evaluate,html,rat,text,worked,checkForm,powerShape,preferredFractionPower,nextStep:reduceOne};if(typeof module!=='undefined')module.exports=api;else root.ExercicesPlus=api;
 })(typeof globalThis!=='undefined'?globalThis:this);
