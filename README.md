@@ -1,8 +1,14 @@
-# Mission Puissances
+# Missions maths · Puissances et Moyennes & stats
 
 Mini-applications interactives pour découvrir intuitivement les mathématiques, adaptées à une élève de 2e secondaire en Belgique.
 
-## État actuel
+## Deux missions et progression
+
+La navigation propose **Puissances**, **Moyennes & stats** et **Ma progression**. La nouvelle mission comprend des tutoriels manipulables (moyenne, proportions, tableaux et graphes), puis des séries de 20, 50 ou 100 défis sur trois niveaux. Les deux missions partagent les prédictions bonus et un historique local : scores selon l’aide utilisée, temps actif, bonus et graphes dans le temps, avec export/import JSON. [Détails et test iPhone](stats/README.md).
+
+Aucun backend ni compte. Les scores restent dans ce navigateur, jusqu’à 5 000 séries : garder une sauvegarde exportée pour les conserver sur plusieurs mois ou changer d’appareil. La synchronisation automatique entre appareils demanderait un service supplémentaire.
+
+## Puissances
 
 Cinq expériences sont accessibles depuis `index.html` :
 
@@ -22,7 +28,7 @@ Depuis l’accueil, choisir 20, 50 ou 100 exercices pour démarrer une séance. 
 
 Vérifications : `node puissances/defis.test.cjs` (génération, calculs, saisies et déroulement d’une séance avec DOM simulé). Le rendu navigateur et Safari iOS restent à valider réellement.
 
-Ouvrir `index.html` dans un navigateur sur ordinateur, ou servir le dossier via un serveur local. Le site reste utilisable localement et hors ligne.
+Pour une adresse locale stable et l’historique, lancer `node scripts/serve.cjs` puis ouvrir `http://127.0.0.1:8080`. L’ouverture directe de `index.html` reste possible pour les manipulations, mais le stockage des scores dépend du navigateur avec une URL de fichier. Le site reste utilisable localement et hors ligne.
 
 ## Feuille de route
 
