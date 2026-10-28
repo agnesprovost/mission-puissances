@@ -52,7 +52,7 @@ for(const [module,config] of Object.entries(W.modules)){
  nodes.mode.value='explorer';nodes.level.value='1';nodes['show-support'].checked=true;nodes.family.tag='select';
  const document={body:{dataset:{module}},getElementById:id=>{assert(nodes[id],`${module}: missing ${id}`);return nodes[id];},createElement:tag=>new Element(tag),createElementNS:(ns,tag)=>new Element(tag)};
  let current;const workshops={...W,generate(...args){current=W.generate(...args);return current;}};
- const context={Expressions:E,Algebre:A,Ateliers:workshops,Figures:F,document};vm.createContext(context);vm.runInContext(fs.readFileSync(__dirname+'/ateliers.js','utf8'),context);
+ const context={Expressions:E,Algebre:A,Ateliers:workshops,Figures:F,Seances:{mount:()=>({active:()=>false,solved:()=>false,record(){},hint(){},demonstration(){},next(){}})},document};vm.createContext(context);vm.runInContext(fs.readFileSync(__dirname+'/ateliers.js','utf8'),context);
  function fill(q){const a=answer(q);if(q.type==='coordinates'){nodes['coordinate-x'].value=a.x;nodes['coordinate-y'].value=a.y;}else if(q.type==='verify'){nodes.left.value=a.left;nodes.right.value=a.right;nodes.conclusion.value=a.conclusion;}else if(q.type==='order'){const bank=nodes['answer-fields'].children[0];for(const value of a)bank.children.find(b=>b.textContent===value).onclick();}else nodes.answer.value=a;}
  for(const kind of Object.keys(config.families)){nodes.family.value=kind;nodes.family.onchange();fill(current);nodes.form.onsubmit({preventDefault(){}});assert.equal(nodes.next.hidden,false,`${module}/${kind} completion`);nodes.hint.onclick();nodes.demonstration.onclick();assert(nodes['hint-text'].textContent);assert(nodes.steps.children.length);nodes.restart.onclick();assert.equal(nodes.next.hidden,true);}
 }

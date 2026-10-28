@@ -29,7 +29,7 @@ form.onsubmit({preventDefault(){}});assert.equal(unlocked,0);magnitude[2].onclic
 sign[0].onclick();form.onsubmit({preventDefault(){}});assert.equal(unlocked,1);assert.equal(state.prediction.sign,'negative');
 // Dashboard keeps missing historical scores distinct from a measured zero.
 const els={},series=[legacy,saved,{...saved,id:'zero',initialCorrect:0}],chartCalls=[];
-const context={Progression:{read:()=>({ok:true,sessions:series}),duration:P.duration},Graphiques:{escape:String,line:(rows,value,options)=>{chartCalls.push({rows,values:rows.map(value),title:options.title});return 'graph';}},document:{getElementById:id=>els[id]??={value:'all'}},URLSearchParams,location:{search:''}};
+const context={Progression:{missions:P.missions,read:()=>({ok:true,sessions:series}),duration:P.duration},Graphiques:{escape:String,line:(rows,value,options)=>{chartCalls.push({rows,values:rows.map(value),title:options.title});return 'graph';}},document:{getElementById:id=>els[id]??={value:'all'}},URLSearchParams,location:{search:''}};
 vm.createContext(context);vm.runInContext(fs.readFileSync(__dirname+'/scores.js','utf8'),context);
 const initial=chartCalls.find(c=>c.title==='Score initial avant correction et aide');assert.equal(initial.rows.length,2);assert.deepEqual(Array.from(initial.values),[5,0]);assert(els.history.innerHTML.includes('Non mesuré'));assert(els.history.innerHTML.includes('0 / 20 (0 %)'));
 console.log('OK : première réponse figée, aide avant/après, erreurs de format, anciennes sauvegardes, score initial nul, intuitions de taille/signe et verrouillage.');

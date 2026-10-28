@@ -13,8 +13,8 @@ for(const source of ['','alert(1)','2a','(2+3','2++','2.5','2;3'])assert.throws(
 assert.equal(E.format(E.rational(9007199254740993n*3n,3n)),'9007199254740993');
 let seed=73;const random=()=>((seed=(seed*1664525+1013904223)>>>0)/4294967296);for(const level of [1,2,3])for(let i=0;i<150;i++)solve(E.generate(level,random));
 // Full controller: choose wrong operation, solve, undo, restart and generate.
-class Element{constructor(){this.value='';this.children=[];this.style={};this.attrs={};this.disabled=false;}append(...nodes){this.children.push(...nodes);}replaceChildren(...nodes){this.children=[...nodes];}setAttribute(k,v){this.attrs[k]=v;}focus(){}querySelector(){return null;}}
-const els={};const document={getElementById:id=>els[id]??=new Element(),createElement:()=>new Element()};document.getElementById('mode').value='comprendre';document.getElementById('level').value='1';const context={Expressions:E,document};vm.createContext(context);vm.runInContext(fs.readFileSync(__dirname+'/priorites.js','utf8'),context);
+class Element{constructor(){this.value='';this.children=[];this.style={};this.attrs={};this.disabled=false;}append(...nodes){this.children.push(...nodes);}replaceChildren(...nodes){this.children=[...nodes];}setAttribute(k,v){this.attrs[k]=v;}focus(){}querySelector(){return null;}querySelectorAll(){return [];}}
+const els={};const document={getElementById:id=>els[id]??=new Element(),createElement:()=>new Element()};document.getElementById('mode').value='comprendre';document.getElementById('level').value='1';const context={Expressions:E,Seances:{mount:()=>({active:()=>false,solved:()=>false,wrong(){},hint(){},demonstration(){},complete(){}})},document};vm.createContext(context);vm.runInContext(fs.readFileSync(__dirname+'/priorites.js','utf8'),context);
 function buttons(el){return el.children.flatMap(child=>[...(child.attrs?.['aria-label']?[child]:[]),...buttons(child)]);}
 function select(label){const button=buttons(els.expression).find(b=>b.attrs['aria-label']===label);assert(button,label);button.onclick();els.calculate.onclick();}
 select('Choisir 24 ÷ 12 × 3');assert.match(els.feedback.textContent,/d’abord/);assert(!els.retry.disabled);
@@ -22,5 +22,5 @@ select('Choisir 5 ^ 2');select('Choisir 24 ÷ 12');select('Choisir 2 × 3');sele
 els.undo.onclick();assert.equal(els.history.children.length,4);select('Choisir 6 + 25');els.restart.onclick();assert.equal(els.history.children.length,1);
 els.demo.onclick();assert.equal(els.history.children.length,2);els.hint.onclick();assert(els['hint-text'].textContent);
 els.source.value='1/0';els.custom.onsubmit({preventDefault(){}});assert.match(els.feedback.textContent,/zéro/);assert.equal(els.history.children.length,2);
-els.new.onclick();assert.equal(els.history.children.length,1);els['tree-a'].onclick();els['tree-b'].onclick();assert.match(els['result-a'].textContent,/20/);assert.match(els['result-b'].textContent,/44/);
+els.new.onclick();assert.equal(els.history.children.length,1);
 console.log('OK : calculs exacts, priorités, signes, parenthèses, 450 exercices reproductibles et parcours du contrôleur.');

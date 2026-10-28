@@ -25,7 +25,7 @@ assert(G.pie(['A','B'],[0,0]).includes('Aucune'));assert(!G.pie(['<img>'],[1]).i
 // Run a full series through the controller with a small DOM adapter.
 class E{constructor(){this.value='20';this.children=[];this.selectors={};}querySelector(s){return this.selectors[s]??=new E();}replaceChildren(){this.children=[];}append(...v){this.children.push(...v);}focus(){}}
 const els={},dom={getElementById:id=>els[id]??=new E(),createElement:()=>new E(),querySelector:()=>null,querySelectorAll:()=>[]};dom.getElementById('level').value='1';let storedResult;
-const browser={Stats:S,Graphiques:G,Intuition:I,StatsVue:{visual:()=>''},Progression:{captureFirst:P.captureFirst,timer:()=>({stop:()=>123}),duration:P.duration,finish:(...args)=>{const output=P.finish(...args);storedResult=output.row;return output;}},document:dom,URLSearchParams,location:{search:'?nombre=20&niveau=1'}};
+const browser={Stats:S,Graphiques:G,Intuition:I,StatsVue:{visual:()=>''},Progression:{validCount:P.validCount,captureFirst:P.captureFirst,timer:()=>({stop:()=>123}),duration:P.duration,finish:(...args)=>{const output=P.finish(...args);storedResult=output.row;return output;}},document:dom,URLSearchParams,location:{search:'?nombre=20&niveau=1'}};
 vm.createContext(browser);vm.runInContext(fs.readFileSync(__dirname+'/defis.js','utf8'),browser);assert.equal(els.resolution.hidden,true);
 for(let i=0;i<20;i++){
  const q=vm.runInContext('current()',browser),widget=els.intuition;
