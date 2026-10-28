@@ -30,6 +30,18 @@ Les familles de défis `moyenne-ecarts` et `manquante-ecarts` sont intégrées a
 
 Tests ciblés : `node stats/ecarts.test.cjs` (translation des données de 1 000 ou d’un milliard sans changer les écarts, 500 défis, moyenne, reconstruction d’une valeur et contrôles du tutoriel). Essai navigateur : repère 1 573 → 1 575, équilibre du levier et annulation d’une paire +1/−1. Safari iOS reste à vérifier sur appareil réel.
 
+### Valeurs répétées et vrais défis de résolution
+
+L’atelier ajoute des situations à effectifs équilibrés ou différents, une valeur cachée répétée deux ou trois fois, et un effectif inconnu. Les piles portent leur effectif (`×3`, `×2`, `×1`) et chaque carte montre l’écart par observation et sa contribution cumulée. Les occurrences ne sont pas confondues avec les valeurs distinctes.
+
+Exemple : 1 572 trois fois, 1 575 deux fois, 1 578 une fois. Le repère 1 575 donne −9, 0 et +3, soit −6 sur six observations. La moyenne est donc 1 574 ; faire la moyenne des trois étiquettes donnerait à tort 1 575.
+
+Le menu de défis propose « Toutes les notions » ou **« Écarts et effectifs »**. Cette série ciblée conserve le choix 20/50/100 et trois niveaux : moyenne avec répétitions ; puis valeur inconnue répétée ; enfin effectif manquant. Les deux derniers types demandent de résoudre un problème inverse, pas simplement de lire le levier. Les tableaux de l’énoncé donnent les données, mais les écarts calculés et la compensation restent masqués jusqu’à l’aide. Certaines moyennes pondérées ne sont pas entières : arrondir au centième est accepté.
+
+Les séances ciblées conservent leur thème dans l’historique et l’export pour les distinguer des séries mélangées. Le score initial et les bonus gardent leurs règles. Les anciennes sauvegardes sans thème restent compatibles.
+
+Tests supplémentaires : 450 problèmes pondérés, comparaison avec une moyenne pondérée indépendante, répétitions de l’inconnue, effectifs inconnus et séries ciblées sans doublons. Les contrôles du tutoriel vérifient aussi les cinq nouvelles situations.
+
 Trois niveaux : (1) moyenne, note manquante, effectif, pourcentage et angle ; (2) correction, pondération, fréquences, « au plus / au moins / strictement plus de », secteur inverse et lecture inverse ; (3) ajout d’observation et choix de représentation, avec les notions précédentes. Les défis mixtes CE1D multi-étapes et les pourcentages successifs restent une extension ultérieure du brief.
 
 Chaque exercice commence par une intuition facultative, verrouillée avant la résolution. Une estimation à ±20 % obtient un bonus si l’exercice est ensuite résolu. Les choix de statistiques demandent une prédiction exacte ; une cible numérique nulle demande zéro. Dans une question de pourcentage, l’intuition et la réponse interprètent 3/4 et 75 % comme la même proportion. Le bonus n’est pas révélé avant la résolution et ne modifie pas le taux de réussite sans aide. Les indices et les développements restent comptés séparément.

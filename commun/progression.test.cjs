@@ -14,6 +14,7 @@ assert.deepEqual(P.initialScore([retried,firstRight,helped,shown,partial,invalid
 const states=[retried,firstRight,helped,...Array.from({length:17},()=>({}))];
 const saved=P.finish('puissances',1,states,{stop:()=>10}).row;
 assert.equal(saved.initialCorrect,1);assert.equal(saved.initialAnswered,3);assert.equal(saved.solo,1);assert.equal(saved.hint,2);assert(P.valid(saved));
+const focused=P.finish('stats',2,states,{stop:()=>10},{theme:'ecarts'}).row;assert.equal(focused.theme,'ecarts');assert(P.valid(focused));assert(!P.valid({...focused,theme:'autre'}));assert(!P.valid({...focused,mission:'puissances'}));
 const legacy={...saved,id:'legacy'};delete legacy.initialCorrect;delete legacy.initialAnswered;assert(P.valid(legacy));
 assert(!P.valid({...saved,initialCorrect:4,initialAnswered:3}));assert(!P.valid({...saved,initialCorrect:1,initialAnswered:21}));
 const store={value:null,getItem(){return this.value},setItem(k,v){this.value=v}};

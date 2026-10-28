@@ -7,6 +7,8 @@ for(const count of [1,7,30,37,500]){
  assert.equal(D.session(count,Math.random,1).length,count);assert.equal(T.session(count,1).length,count);
 }
 for(const n of [0,-1,501,1.5]){assert.throws(()=>D.session(n));assert.throws(()=>T.session(n));}
+const targeted=T.session(37,2,Math.random,'ecarts');assert.equal(targeted.length,37);assert(targeted.every(q=>T.gapKinds.includes(q.kind)));
+assert(P.valid({id:'targeted',mission:'stats',theme:'ecarts',level:2,total:37,date:new Date().toISOString(),seconds:1,solo:37,hint:0,assisted:0,skipped:0}));
 const storage={value:null,getItem(){return this.value;},setItem(key,value){this.value=value;}};
 const legacy={id:'old',mission:'stats',level:1,total:20,date:new Date().toISOString(),seconds:20,solo:20,hint:0,assisted:0,skipped:0,bonus:0,predictions:0};assert(P.save(legacy,storage).ok);
 for(const mission of Object.keys(P.missions))assert(P.save({...legacy,id:mission,mission,total:37,solo:37},storage).ok);
