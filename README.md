@@ -1,10 +1,22 @@
 # Missions maths · Puissances et Moyennes & stats
 
+## Séances personnalisées et fondamentaux
+
+Chaque catégorie propose une **séance de défis**, avec un nombre entier de questions saisi librement entre **1 et 500**, une technique ciblée ou un mélange, et un niveau. Les défis Puissances et Statistiques acceptent aussi ce nombre libre, depuis leur accueil ou leur page de séance.
+
+Les séances avancent question par question, avec indices et démonstrations à la demande, passage d’une question, bilan final et reprise des questions à revoir. Les supports des nouveaux ateliers sont masqués au départ d’une séance et peuvent être ouverts comme une aide. Un arrêt anticipé compte les questions restantes comme passées. Les étapes algébriques intermédiaires correctes ne pénalisent pas le score initial ; une erreur validée ou une aide avant la réussite empêche d’obtenir ce point initial. Une question passée compte zéro. Les corrections ultérieures restent possibles.
+
+Les bilans de toutes les catégories sont compatibles avec Ma progression, ses filtres et les sauvegardes existantes ; les anciennes séances restent lisibles. L’exercice en cours n’est pas repris après rechargement. La reprise des erreurs reste disponible dans la page pendant la visite.
+
+L’exemple statique des deux arbres de calcul est conservé dans `priorites/fondamentaux.html`, séparément du parcours dynamique et des séances de défis. Ce premier exemple est gardé comme ressource ; le module complet de fondamentaux n’est pas développé à ce stade.
+
+Test complémentaire : `node commun/seances.test.cjs` vérifie les longueurs libres, les bilans, la reprise, les anciennes sauvegardes et le démarrage des séances dans les neuf nouvelles catégories.
+
 Le [cahier des charges consolidé](CAHIER-DES-CHARGES.md) décrit les neuf nouveaux modules, le formalisme transversal, l’analyse de l’existant et l’architecture proposée. Les deux prototypes prévus sont Priorités des opérations, puis Suites de figures — Du raisonnement à la rédaction.
 
 ## Prototype Priorités des opérations
 
-Accessible depuis l’accueil ou `priorites/index.html`. Sélectionner un signe puis « Calculer cette opération » ; les étapes sont validées et annulables. Trois modes libres, trois niveaux générés, expressions personnalisées, reprise des expressions à revoir pendant la visite, indices progressifs, démonstration d’une seule étape et comparaison de deux arbres sont disponibles. Aucune sauvegarde de ce parcours après rechargement ; aucun score dans Explorer.
+Accessible depuis l’accueil ou `priorites/index.html`. Sélectionner un signe puis « Calculer cette opération » ; les étapes sont validées et annulables. Trois modes libres, trois niveaux générés, expressions personnalisées, reprise des expressions à revoir pendant la visite, indices progressifs, démonstration d’une seule étape et accès séparé aux fondamentaux (comparaison de deux arbres) sont disponibles. Le bilan des séances terminées est sauvegardé ; une séance en cours ne reprend pas après rechargement. Aucun score dans Explorer.
 
 Le moteur commun `commun/expressions.js` utilise un arbre syntaxique immuable et des rationnels BigInt. Il prend en charge les entiers, signes unaires, parenthèses, opérations arithmétiques et exposants entiers de 0 à 12 ; il refuse les divisions par zéro, `0^0`, les exposants négatifs et les écritures hors grammaire. Le calcul littéral et les équations ne sont pas encore implémentés dans ce moteur. Pour cette activité, on traite les parenthèses, les puissances, puis les chaînes de même priorité de gauche à droite ; plusieurs sous-expressions indépendantes peuvent être sélectionnées.
 
@@ -27,19 +39,19 @@ L’accueil donne désormais accès aux neuf catégories ajoutées, dont Priorit
 | `geometrie/` | Lecture de coordonnées avec point exploratoire déplaçable par curseurs ; définitions et affichage des quatre droites du triangle. |
 | `multiples/` | Deux ou trois périodes, déplacement manuel sur une ligne du temps, premier multiple commun strictement positif et unité en secondes. |
 
-Les trois modes sont accessibles librement. Les réglages se replient pour garder l’exercice accessible sur téléphone. Les indices et corrections se dévoilent à la demande, une étape à la fois. Le mode Explorer n’attribue aucun score ; les autres modes permettent de reprendre les erreurs durant la visite. Les parcours ne sont pas encore enregistrés dans Ma progression.
+Les trois modes sont accessibles librement. Les réglages se replient pour garder l’exercice accessible sur téléphone. Les indices et corrections se dévoilent à la demande, une étape à la fois. Le mode Explorer n’attribue aucun score ; les autres modes permettent de reprendre les erreurs durant la visite. Les séances terminées sont enregistrées dans Ma progression, pour toutes les catégories.
 
 Le formalisme écrit reste ciblé sur la construction de formules dans les suites. Les autres ateliers demandent de calculer ou transformer, sans justification rédigée obligatoire. Le texte libre des suites n’est pas corrigé automatiquement ; les cases de relecture sont une autoévaluation.
 
 Périmètre mathématique initial : polynômes à coefficients rationnels, lettres individuelles, exposants de 0 à 6 dans le parseur algébrique, division uniquement par une constante non nulle ; la grammaire arithmétique conserve son propre périmètre. Un format non pris en charge reçoit une explication ; il ne prouve pas une erreur de raisonnement. Les contrôles d’équivalence se font sur les coefficients exacts, jamais sur quelques valeurs testées. Les résultats exacts restent distincts des décimales approchées dans les aides.
 
-**À compléter :** bilan de compétences persistant, générateurs plus variés, cas d’équations sans solution ou à infinité de solutions, organisation de blocs de rédaction, véritable déplacement d’objets entre ensembles, origine mobile et contrainte sur plusieurs points, triangle déformable, classification des solides/quadrilatères et animation temporelle automatique. Les exemples d’ensembles, de classement et de définitions géométriques utilisent pour l’instant de petits jeux fixes ; leurs deux niveaux ne constituent pas encore deux progressions distinctes.
+**À compléter :** bilan fin de compétences persistant, générateurs plus variés, cas d’équations sans solution ou à infinité de solutions, organisation de blocs de rédaction, véritable déplacement d’objets entre ensembles, origine mobile et contrainte sur plusieurs points, triangle déformable, classification des solides/quadrilatères et animation temporelle automatique. Les exemples d’ensembles, de classement et de définitions géométriques utilisent pour l’instant de petits jeux fixes ; leurs deux niveaux ne constituent pas encore deux progressions distinctes.
 
 Vérification : `node commun/ateliers.test.cjs` couvre 1 600 questions générées, les exemples du contrôle retranscrits dans le cahier des charges, les équivalences, les étapes et les parcours des huit contrôleurs. Contrôles effectués aussi dans le navigateur : chargement des vingt techniques, regroupement littéral, opérations sur les deux membres d’une équation, formule équivalente et comparaison ; les huit pages ne débordent pas horizontalement à environ 390 px. Un essai tactile Safari sur iPhone réel reste à faire.
 
 ## Deux missions et progression
 
-La navigation propose **Puissances**, **Moyennes & stats** et **Ma progression**. La nouvelle mission comprend des tutoriels manipulables (moyenne, proportions, tableaux et graphes), puis des séries de 20, 50 ou 100 défis sur trois niveaux. Les deux missions partagent les prédictions bonus et un historique local : scores selon l’aide utilisée, temps actif, bonus et graphes dans le temps, avec export/import JSON. [Détails et test iPhone](stats/README.md).
+La navigation propose **Puissances**, **Moyennes & stats** et **Ma progression**. La nouvelle mission comprend des tutoriels manipulables (moyenne, proportions, tableaux et graphes), puis des séries de 1 à 500 défis, au choix sur trois niveaux. Les deux missions partagent les prédictions bonus et un historique local : scores selon l’aide utilisée, temps actif, bonus et graphes dans le temps, avec export/import JSON. [Détails et test iPhone](stats/README.md).
 
 Aucun backend ni compte. Les scores restent dans ce navigateur, jusqu’à 5 000 séries : garder une sauvegarde exportée pour les conserver sur plusieurs mois ou changer d’appareil. La synchronisation automatique entre appareils demanderait un service supplémentaire.
 
@@ -59,7 +71,7 @@ Chaque expérience propose des indices, une démonstration et une remise à zér
 
 ### Défis mélangés
 
-Depuis l’accueil, choisir 20, 50 ou 100 exercices pour démarrer une séance. Les huit familles comprennent les produits, quotients, puissances de puissances, produits de bases différentes, expressions combinées, deux types d’exposants inconnus et la notation scientifique. Les questions arrivent une par une, sans afficher la solution. Réponse directe (ex. `3^4`, `1/3^2`, `4,5*10^-3`), vérification, nouvel essai, indice et développement visuel étape par étape sont disponibles. Les réponses équivalentes sont acceptées ; la notation scientifique doit être normalisée. Un bilan distingue les réussites sans aide, avec indice, avec développement et les questions passées. La séance n’est pas conservée après rechargement.
+Depuis l’accueil, choisir librement de 1 à 500 exercices pour démarrer une séance. Les huit familles comprennent les produits, quotients, puissances de puissances, produits de bases différentes, expressions combinées, deux types d’exposants inconnus et la notation scientifique. Les questions arrivent une par une, sans afficher la solution. Réponse directe (ex. `3^4`, `1/3^2`, `4,5*10^-3`), vérification, nouvel essai, indice et développement visuel étape par étape sont disponibles. Les réponses équivalentes sont acceptées ; la notation scientifique doit être normalisée. Un bilan distingue les réussites sans aide, avec indice, avec développement et les questions passées. La séance n’est pas conservée après rechargement.
 
 Vérifications : `node puissances/defis.test.cjs` (génération, calculs, saisies et déroulement d’une séance avec DOM simulé). Le rendu navigateur et Safari iOS restent à valider réellement.
 

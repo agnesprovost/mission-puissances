@@ -1,0 +1,30 @@
+(function(root){
+'use strict';
+const MAX=500;
+function validCount(value){return /^\d+$/.test(String(value))&&Number.isInteger(Number(value))&&Number(value)>=1&&Number(value)<=MAX;}
+function create({count,kinds,level,generate,random=Math.random}){if(!validCount(count)||!kinds.length)throw Error('Choisis de 1 à 500 questions et au moins une technique.');const rows=[],seen=new Set();for(let i=0;i<Number(count);i++){let q,key,tries=0;do{q=generate(kinds[i%kinds.length],level,random);key=JSON.stringify(q);}while(seen.has(key)&&++tries<30);seen.add(key);rows.push(q);}for(let i=rows.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[rows[i],rows[j]]=[rows[j],rows[i]];}return {rows,states:rows.map(()=>({solved:false,hint:false,shown:0})),position:0,level};}
+function mount(options){const {host,mission,families,generate,load,lock=()=>{},finished=()=>{}}=options,doc=root.document;let session=null,clock=null,active=false;
+ const el=(tag,text)=>{const e=doc.createElement(tag);if(text!==undefined)e.textContent=text;return e;};
+ const heading=el('h2','Ma séance de défis'),form=el('form'),controls=el('div');controls.className='controls';
+ function field(label,node){const l=el('label',label);l.append(node);controls.append(l);return node;}
+ const count=field('Nombre de questions',el('input'));count.type='number';count.min='1';count.max=String(MAX);count.step='1';count.value='20';count.required=true;count.inputMode='numeric';
+ const family=field('Techniques',el('select'));for(const [value,label] of [['all','Mélanger les techniques'],...Object.entries(families)]){const o=el('option',label);o.value=value;family.append(o);}
+ const level=field('Niveau',el('select'));for(let i=1;i<=(options.levels||2);i++){const o=el('option',String(i));o.value=String(i);level.append(o);}
+ const launch=el('button','Lancer ma séance');launch.type='submit';controls.append(launch);form.append(controls);
+ const note=el('p','Choisis ton nombre de questions, de 1 à 500. Les aides restent disponibles à la demande. Si tu termines avant la fin, les questions restantes sont comptées comme passées.');note.className='note';
+ const status=el('p');status.setAttribute('role','status');const progress=el('progress');progress.hidden=true;const actions=el('div');actions.className='actions';
+ const advance=el('button','Question suivante'),skip=el('button','Passer cette question'),end=el('button','Terminer la séance');for(const b of [advance,skip,end]){b.type='button';b.hidden=true;actions.append(b);}
+ const report=el('div'),retry=el('button','Refaire les questions à revoir');retry.type='button';retry.hidden=true;
+ host.append(heading,form,note,status,progress,report,retry);(options.footer||host).append(actions);
+ function state(){return session?.states[session.position];}
+ function paint(){status.textContent=`Question ${session.position+1} sur ${session.rows.length}`;progress.value=session.position;advance.hidden=!state().solved;skip.hidden=state().solved;}
+ function show(){paint();load(session.rows[session.position]);}
+ function begin(rows=null){if(!rows&&!validCount(count.value)){status.textContent='Écris un nombre entier de questions entre 1 et 500.';return;}if(clock)clock.stop();session=rows?{rows,states:rows.map(()=>({solved:false,hint:false,shown:0})),position:0,level:rows[0].level||Number(level.value)}:create({count:count.value,kinds:family.value==='all'?Object.keys(families):[family.value],level:Number(level.value),generate});active=true;clock=root.Progression.timer();form.hidden=true;note.hidden=true;report.replaceChildren();retry.hidden=true;progress.hidden=false;progress.max=session.rows.length;end.hidden=false;lock(true);show();}
+ function finish(){if(!active)return;active=false;const result=root.Progression.finish(mission,session.level,session.states,clock),r=result.row;clock=null;status.textContent='Séance terminée';progress.value=r.total;advance.hidden=skip.hidden=end.hidden=true;form.hidden=false;note.hidden=false;lock(false);report.replaceChildren(el('p',`Score initial : ${r.initialCorrect} / ${r.total}.`),el('p',`Sans aide : ${r.solo} · Avec indice : ${r.hint} · Avec démonstration : ${r.assisted} · Passées : ${r.skipped}.`),el('p',result.ok?'Bilan enregistré dans Ma progression.':'Bilan visible ici ; l’enregistrement local est indisponible.'));retry.hidden=!session.states.some(s=>!s.solved||s.firstResponse?.correct===false||s.hint||s.shown);host.scrollIntoView?.({block:'start'});finished();}
+ function next(){if(!active)return;if(++session.position>=session.rows.length){finish();return;}show();}
+ form.onsubmit=e=>{e.preventDefault();begin();};advance.onclick=()=>{if(active&&state().solved)next();};skip.onclick=next;end.onclick=finish;
+ retry.onclick=()=>{const rows=session.rows.filter((q,i)=>{const s=session.states[i];return !s.solved||s.firstResponse?.correct===false||s.hint||s.shown;});if(rows.length)begin(rows);};
+ return {active:()=>active,next(){if(active&&state().solved)next();},record(result,raw){if(!active||state().solved||!result.valid)return;if(!result.correct||result.complete){root.Progression.captureFirst(state(),{...result,correct:!!result.complete},raw);}if(result.complete){state().solved=true;paint();}},hint(){if(active)state().hint=true;},demonstration(){if(active)state().shown++;},wrong(){if(active&&!state().solved)root.Progression.captureFirst(state(),{valid:true,correct:false},'opération');},complete(){this.record({valid:true,correct:true,complete:true},'résultat');},solved:()=>active&&!!state().solved};
+}
+const api={MAX,validCount,create,mount};if(typeof module!=='undefined')module.exports=api;else root.Seances=api;
+})(typeof globalThis!=='undefined'?globalThis:this);

@@ -1,5 +1,5 @@
 'use strict';
-const $=id=>document.getElementById(id),names={puissances:'Puissances',stats:'Moyennes & stats'};
+const $=id=>document.getElementById(id),names=Progression.missions;
 function render(){const stored=Progression.read(),rows=stored.sessions.filter(s=>($('mission').value==='all'||s.mission===$('mission').value)&&($('level').value==='all'||s.level===Number($('level').value))).sort((a,b)=>Date.parse(a.date)-Date.parse(b.date));
  $('storage-message').textContent=stored.ok?'Enregistrement local · 5 000 séries maximum conservées.':'Les données locales sont inaccessibles ou illisibles. Les nouvelles séances restent utilisables sans historique.';
  const measured=rows.filter(s=>Number.isInteger(s.initialCorrect)),initialTotal=measured.reduce((n,s)=>n+s.total,0),initialCorrect=measured.reduce((n,s)=>n+s.initialCorrect,0);
