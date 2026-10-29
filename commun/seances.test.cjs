@@ -14,7 +14,7 @@ const legacy={id:'old',mission:'stats',level:1,total:20,date:new Date().toISOStr
 for(const mission of Object.keys(P.missions))assert(P.save({...legacy,id:mission,mission,total:37,solo:37},storage).ok);
 assert.equal(P.read(storage).sessions.length,Object.keys(P.missions).length+1);
 const els=[];class El{constructor(tag){this.tag=tag;this.children=[];this.hidden=false;this.value='';els.push(this);}append(...nodes){if(this.tag==='select'&&!this.children.length)this.value=nodes[0].value;this.children.push(...nodes);}replaceChildren(...nodes){this.children=[];this.append(...nodes);}setAttribute(){}scrollIntoView(){}}
-let saved,current;const context={document:{createElement:tag=>new El(tag)},Progression:{...P,timer:()=>({stop:()=>10}),finish:(...args)=>{saved=P.finish(...args).row;return {row:saved,ok:true};}}};vm.createContext(context);vm.runInContext(fs.readFileSync(__dirname+'/seances.js','utf8'),context);
+let saved,current;const context={document:{getElementById:()=>null,createElement:tag=>new El(tag)},Progression:{...P,timer:()=>({stop:()=>10}),finish:(...args)=>{saved=P.finish(...args).row;return {row:saved,ok:true};}}};vm.createContext(context);vm.runInContext(fs.readFileSync(__dirname+'/seances.js','utf8'),context);
 const host=new El('section'),drill=context.Seances.mount({host,mission:'litteral',families:{reduire:'Réduire'},generate:(kind,level)=>W.generate('litteral',kind,level),load:q=>{current=q;}});
 const count=els.find(e=>e.tag==='input'),form=els.find(e=>e.tag==='form'),next=els.find(e=>e.textContent==='Question suivante'),skip=els.find(e=>e.textContent==='Passer cette question'),retry=els.find(e=>e.textContent==='Refaire les questions à revoir');
 count.value='3';form.onsubmit({preventDefault(){}});assert(drill.active());

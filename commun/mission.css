@@ -3,3 +3,5 @@
 .intuition{padding:18px;border:2px solid #d4d9f1;border-radius:16px;margin:20px 0;background:#fafbff}.intuition h3{margin-top:0}.intuition-form{display:flex;gap:10px;align-items:end;flex-wrap:wrap}.intuition-form label{display:grid;gap:6px}
 
 .intuition-form.qualitative{display:block}.qualitative fieldset{border:0;padding:0;margin:16px 0}.qualitative legend{font-weight:700;margin-bottom:8px}.intuition-options{display:flex;flex-wrap:wrap;gap:8px}.intuition-options button[aria-pressed=true]{background:#3348b9;color:white;box-shadow:0 0 0 3px #a9b4ef}.qualitative>button{margin:6px 6px 0 0}.initial-score{background:#edf0ff;border-left:5px solid #3348b9;border-radius:8px;padding:16px;font-size:1.2rem}
+
+.attempt-count{display:inline-block;margin:.5rem;padding:.35rem .7rem;border-radius:.6rem;background:#eef0fb;color:#252a48;font-weight:700}

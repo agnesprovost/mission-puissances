@@ -103,3 +103,10 @@ for(const kind of ['produit-quotient','produit-quotient-bases','equation-quotien
  if(!q.unknown){const X=require('./exercices-plus.js');const a=X.evaluate(X.tree(q.answer));assert.equal(a[0]*D.parse(q.answer)[1],D.parse(q.answer)[0]*a[1]);}
 }
 console.log('OK : cinq paliers, fractions réservées au dernier, phrases et quotients inconnus accessibles.');
+
+for(const raw of ['0,5','0.5','1/2','50%']){const r=D.check({kind:'signes-quotients',numeric:true,answer:'1/2'},raw);assert(r.correct&&r.reduced,raw);}
+assert.equal(D.check({kind:'signes-quotients',numeric:true,answer:'1/2'},'2/4').reduced,false);
+assert.equal(D.check({kind:'produit',answer:'2^3'},'8').reduced,false);
+assert.equal(D.check({kind:'phrase-traduction',form:'translation',expression:'-(-3)^3',answer:'27'},'27').reduced,false);
+assert(D.check({kind:'puissance-fraction',numeric:true,answer:'3/4'},'75%').reduced);
+console.log('OK : équivalences numériques acceptées, fractions non réduites et formes de puissances toujours contrôlées.');

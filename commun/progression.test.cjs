@@ -33,3 +33,12 @@ const context={Progression:{missions:P.missions,read:()=>({ok:true,sessions:seri
 vm.createContext(context);vm.runInContext(fs.readFileSync(__dirname+'/scores.js','utf8'),context);
 const initial=chartCalls.find(c=>c.title==='Score initial avant correction et aide');assert.equal(initial.rows.length,2);assert.deepEqual(Array.from(initial.values),[5,0]);assert(els.history.innerHTML.includes('Non mesuré'));assert(els.history.innerHTML.includes('0 / 20 (0 %)'));
 console.log('OK : première réponse figée, aide avant/après, erreurs de format, anciennes sauvegardes, score initial nul, intuitions de taille/signe et verrouillage.');
+
+const attemptCases=[{attemptCount:1,solved:true,hint:true},{attemptCount:2,solved:true,shown:3},{attemptCount:4,solved:true},{attemptCount:3,solved:false},{attemptCount:0,solved:false}];
+assert.deepEqual(P.attemptStats(attemptCases),{total:10,solved:3,solvedAttempts:7,first:1,second:1,multiple:1});
+const trial={attemptCount:0,solved:false};assert(!P.recordAttempt(trial,'  '));assert(P.recordAttempt(trial,'incorrect'));assert.equal(trial.attemptCount,1);trial.solved=true;assert(!P.recordAttempt(trial,'1'));assert.equal(trial.attemptCount,1);
+console.log('OK : essais indépendants des aides, blancs ignorés, essais après réussite bloqués, questions passées exclues de la moyenne de réussite.');
+
+const attemptsSaved=P.finish('stats',1,attemptCases,{stop:()=>12}).row;assert(P.valid(attemptsSaved));assert.equal(attemptsSaved.attemptDetails[1].count,2);
+assert(!P.valid({...attemptsSaved,attemptDetails:[{count:-1,solved:true}]}));assert(!P.valid({...attemptsSaved,attemptDetails:attemptsSaved.attemptDetails.map(a=>({...a,count:1.5}))}));
+const attemptsStore={value:null,getItem(){return this.value},setItem(k,v){this.value=v}};assert(P.restore(JSON.stringify({version:1,sessions:[attemptsSaved]}),attemptsStore).ok);assert.deepEqual(P.read(attemptsStore).sessions[0].attemptDetails,attemptsSaved.attemptDetails);
