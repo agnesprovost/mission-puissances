@@ -13,7 +13,15 @@ function generate(kind,random=Math.random){
  if(['signes','signes-produits','signes-quotients','equation-lineaire','equation-fraction'].includes(kind))return advanced(kind,random);
  const r=(lo,hi)=>lo+Math.floor(random()*(hi-lo+1));
  const a=r(2,7),n=r(2,5),m=r(2,5),k=r(1,6);let q={kind,a,n,m,k};
- if(kind==='produit'||kind==='quotient'||kind==='combine'){
+ if(kind==='equation-quotient'){
+ q.unknown=true;q.answer=String(m);q.prompt=frac(pow(a,n+m),a+'<sup>?</sup>')+' = '+pow(a,n);q.hint='Combien de facteurs faut-il annuler pour obtenir la puissance de droite ?';
+ q.steps=[step('Développons les facteurs du numérateur.',factors(a,n+m)),step('Annulons les facteurs qui ne doivent plus rester.',frac(factors(a,n+m,m),factors(a,m,m))),step('Soustrayons les exposants pour retrouver le nombre de facteurs annulés.','? = '+(n+m)+' − '+n+' = '+m)];
+ }else if(kind==='produit-quotient'||kind==='produit-quotient-bases'){
+ const other=[3,5,7][r(0,2)],top=r(3,7),bottom=kind==='produit-quotient-bases'?2*r(2,4):r(1,5),denBase=kind==='produit-quotient-bases'?4:2,denExponent=denBase===4?bottom/2:bottom,delta=top-bottom;
+ q.answer=delta===0?other+'^'+n:delta>0?other+'^'+n+'*2^'+delta:other+'^'+n+'/2^'+(-delta);
+ q.prompt=frac(pow(other,n)+' × '+pow(2,top),pow(denBase,denExponent));q.instruction='Simplifie les facteurs communs et garde les puissances.';q.format='Plusieurs puissances peuvent rester : par exemple 5^4 × 2 ou 5^4 / 2^2. Ne calcule pas leur valeur.';q.hint='Seuls les facteurs de même base se simplifient. '+(denBase===4?'Réécris 4 comme 2 au carré.':'Conserve la puissance de l’autre base.');
+ q.steps=[...(denBase===4?[step('Réécrivons 4 comme 2 au carré, puis multiplions les exposants.',pow(4,denExponent)+' = '+pow(2,bottom))]:[]),step('Développons uniquement les facteurs à simplifier.',frac(pow(other,n)+' × '+factors(2,top),factors(2,bottom))),step('Annulons les facteurs identiques.',frac(pow(other,n)+' × '+factors(2,top,Math.min(top,bottom)),factors(2,bottom,Math.min(top,bottom)))),step('Conservons la puissance de l’autre base.',delta<0?frac(pow(other,n),pow(2,-delta)):delta===0?pow(other,n):pow(other,n)+' × '+pow(2,delta))];
+ }else if(kind==='produit'||kind==='quotient'||kind==='combine'){
   const top=kind==='produit'?n+m:kind==='combine'?n*m:n, bottom=kind==='produit'?0:k;
   const exponent=top-bottom, cancelled=Math.min(top,bottom);
   q.prompt=kind==='produit'?`${pow(a,n)} × ${pow(a,m)}`:kind==='quotient'?frac(pow(a,n),pow(a,k)):frac(`(${pow(a,n)})<sup>${m}</sup>`,pow(a,k));
@@ -41,7 +49,7 @@ function generate(kind,random=Math.random){
  return q;
 }
 const kinds=['produit','quotient','combine','puissance','paires','equation','equation-puissance','scientifique'];
-const levels={1:['produit','quotient','puissance','paires','fraction-vers-puissance','puissance-fraction','fractions-puissances','phrase-traduction'],2:['produit','quotient','combine','equation','scientifique','signes','signes-produits','fraction-vers-puissance','puissance-fraction','fractions-puissances','fractions-puissances','quotient-signe-puissance','phrase-traduction','phrase-calcul','equation-bases','priorites-puissances'],3:['combine','equation-puissance','signes','signes-produits','signes-quotients','equation-lineaire','equation-fraction','fraction-vers-puissance','puissance-fraction','fractions-puissances','fractions-puissances','quotient-signe-puissance','phrase-traduction','phrase-calcul','equation-bases','priorites-puissances','calcul-litteral']};
+const levels={1:['produit','quotient','puissance','paires'],2:['quotient','equation','equation-quotient','signes','phrase-traduction','phrase-calcul'],3:['produit-quotient','combine','equation-quotient','signes-produits','phrase-traduction','phrase-calcul'],4:['produit-quotient-bases','equation-bases','equation-puissance','priorites-puissances','calcul-litteral','signes-quotients','scientifique','phrase-traduction','phrase-calcul'],5:['fraction-vers-puissance','puissance-fraction','fractions-puissances','quotient-signe-puissance','equation-fraction']};
 function session(count,random=Math.random,level){if(!Number.isInteger(count)||count<1||count>500)throw Error('Nombre de questions : entier de 1 à 500 attendu.');const pool=levels[level]||kinds,list=[],seen=new Set();for(let i=0;i<count;i++){let q,tries=0;do{q=generate(pool[i%pool.length],random);}while(seen.has(q.prompt)&&++tries<200);seen.add(q.prompt);list.push(q);}for(let i=list.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[list[i],list[j]]=[list[j],list[i]];}return list;}
 function advanced(kind,random){
  const r=(lo,hi)=>lo+Math.floor(random()*(hi-lo+1));
@@ -86,6 +94,6 @@ function check(q,raw){if(raw.length>100)return {valid:false};raw=raw.replace(/�
  const value=parse(raw),expected=parse(q.answer);if(!value)return {valid:false};if(q.kind==='scientifique'){const match=raw.replace(/\s/g,'').replace(',','.').match(/^(\d+(?:\.\d+)?)[*×·xX]10\^([+-]?\d{1,2})$/);if(!match||Number(match[1])<1||Number(match[1])>=10)return {valid:true,correct:false};}
  const correct=value[0]*expected[1]===expected[0]*value[1];
  const normalized=raw.replace(/\s/g,'').replace(/÷/g,'/').replace(/²/g,'^2').replace(/³/g,'^3').replace(/\(([-+]?\d+(?:\^\d+)?)\)/g,'$1');
- return {valid:true,correct,reduced:q.kind==='scientifique'||normalized===q.answer||q.answer.endsWith('^1')&&normalized===q.answer.slice(0,-2)};}
+ return {valid:true,correct,reduced:q.kind==='scientifique'||normalized===q.answer||['produit-quotient','produit-quotient-bases'].includes(q.kind)&&normalized.replace(/[×·xX]/g,'*').replace(/\^1(?!\d)/g,'')===q.answer.replace(/\^1(?!\d)/g,'')||q.answer.endsWith('^1')&&normalized===q.answer.slice(0,-2)};}
 const api={generate,session,check,parse,kinds,levels};if(typeof module!=='undefined')module.exports=api;else root.Defis=api;
 })(typeof globalThis!=='undefined'?globalThis:this);

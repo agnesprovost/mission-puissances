@@ -91,3 +91,15 @@ assert.equal(els['answer-label'].textContent,'Expression à écrire');assert(els
 els.answer.value='27';els.form.onsubmit({preventDefault(){}});assert.equal(els.feedback.className,'status feedback-partial');assert(!vm.runInContext('state().firstResponse.correct',context));
 els.answer.value='-(-3)^3';els.form.onsubmit({preventDefault(){}});assert.equal(els.feedback.className,'status feedback-success');
 console.log('OK : exposant de toute la fraction, remise à zéro, consigne de traduction et score initial distinct après correction.');
+
+for(let level=1;level<=5;level++)for(const count of [20,50,100]){
+ const qs=D.session(count,random,level);assert.equal(qs.length,count);assert.equal(new Set(qs.map(q=>q.prompt)).size,count);
+ assert(qs.every(q=>D.check(q,q.answer).correct));
+ if(level<5)assert(qs.every(q=>!['fraction-vers-puissance','puissance-fraction','fractions-puissances'].includes(q.kind)));
+ if(level===2)assert(qs.some(q=>q.kind==='phrase-traduction')&&qs.some(q=>q.kind==='equation-quotient'));
+}
+for(const kind of ['produit-quotient','produit-quotient-bases','equation-quotient'])for(let i=0;i<150;i++){
+ const q=D.generate(kind,random);assert(D.check(q,q.answer).correct);assert(q.steps.length>=3);
+ if(!q.unknown){const X=require('./exercices-plus.js');const a=X.evaluate(X.tree(q.answer));assert.equal(a[0]*D.parse(q.answer)[1],D.parse(q.answer)[0]*a[1]);}
+}
+console.log('OK : cinq paliers, fractions réservées au dernier, phrases et quotients inconnus accessibles.');

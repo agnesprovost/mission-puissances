@@ -54,3 +54,12 @@ node stats/stats.test.cjs
 Les tests supplémentaires couvrent 1 440 questions générées, les deux fractions d’exemple, les traductions, les formes équivalentes, les signes et la comparaison à 1, les priorités et la conservation de la valeur à chaque étape, ainsi que les séries de 20/50/100. Essais navigateur : saisie et validation de l’exposant de toute la fraction, consignes distinctes et développement d’un calcul littéral. Safari iOS reste à vérifier sur appareil réel.
 
 Seuls les types d’exercices mathématiques sont repris dans le code ; les photos et les informations présentes sur les copies ne font pas partie du dépôt.
+
+
+## Progression en cinq paliers
+1. Règles simples sur bases entières.
+2. Signes, traduction de phrases et exposants inconnus, notamment au dénominateur.
+3. Produits et quotients : simplifier seulement les bases communes.
+4. Réécrire les bases (4 = 2²), combiner et respecter les priorités.
+5. Puissances de fractions, réservées à plus tard.
+Les quotients de puissances entières restent présents dès le premier palier. Les traductions et calculs de phrases sont présents dès le deuxième. Les anciens scores restent conservés ; les nouveaux paliers ne sont pas directement comparables aux anciennes séries.
