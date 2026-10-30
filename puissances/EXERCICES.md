@@ -63,3 +63,6 @@ Seuls les types d’exercices mathématiques sont repris dans le code ; les phot
 4. Réécrire les bases (4 = 2²), combiner et respecter les priorités.
 5. Puissances de fractions, réservées à plus tard.
 Les quotients de puissances entières restent présents dès le premier palier. Les traductions et calculs de phrases sont présents dès le deuxième. Les anciens scores restent conservés ; les nouveaux paliers ne sont pas directement comparables aux anciennes séries.
+
+
+Les produits de puissances signées demandent de résoudre les signes et de conserver les puissances. Plusieurs puissances peuvent rester si aucune règle ne les regroupe (7^4 × 6^2). Les bases parfaites, bases identiques et exposants identiques sont regroupés quand possible. Le résultat numérique entièrement effectué reste accepté, mais n’est pas imposé. Les démonstrations s’arrêtent à la forme en puissances.
