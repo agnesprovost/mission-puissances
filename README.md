@@ -119,3 +119,9 @@ Le bouton Écrire une fraction propose un champ numérateur au-dessus d’un cha
 - Dépôt public : https://github.com/agnesprovost/mission-puissances
 - GitHub Pages publie la racine de la branche `develop`.
 - Pour une mise à jour : vérifier les exercices avec `node puissances/defis.test.cjs`, créer un commit puis exécuter `git push`. GitHub Pages republie ensuite le site.
+
+
+### Nombre d’essais
+Les séances affichent le compteur près du bouton de vérification. Chaque réponse non vide soumise compte, y compris les formats invalides ; une prédiction, un indice ou une démonstration ne compte pas comme réponse. Dans les ateliers à étapes, les transformations intermédiaires correctes ne sont pas des tentatives de réponse finale. Le bilan et le dashboard indiquent les réussites en un, deux ou trois essais et plus, le total et la moyenne pour réussir, indépendamment de l’aide. Les questions passées contribuent au total mais pas à la moyenne des réussites. Les résultats entièrement montrés sans réponse soumise sont exclus de cette moyenne. Les anciens scores restent « Non mesuré ». Les sauvegardes JSON conservent les nombres d’essais par exercice, sans le contenu des réponses.
+
+Les proportions acceptent notamment 75 %, 3/4 et 0,75. Pour une question en pourcentage, un décimal entre 0 et 1 sans symbole % représente une proportion ; un entier sans symbole représente des points de pourcentage. Écrire explicitement % lève l’ambiguïté : 0,5 % diffère de 0,5 (50 %). Les exigences de réduction et de maintien des puissances restent appliquées.
