@@ -66,3 +66,6 @@ Les quotients de puissances entières restent présents dès le premier palier. 
 
 
 Les produits de puissances signées demandent de résoudre les signes et de conserver les puissances. Plusieurs puissances peuvent rester si aucune règle ne les regroupe (7^4 × 6^2). Les bases parfaites, bases identiques et exposants identiques sont regroupés quand possible. Le résultat numérique entièrement effectué reste accepté, mais n’est pas imposé. Les démonstrations s’arrêtent à la forme en puissances.
+
+
+Mise à jour : la forme réduite des simplifications à bases entières exige des bases premières. Ainsi 7^4 × 6^2 devient 2^2 × 3^2 × 7^4 et 6^6 devient 2^6 × 3^6. Les exposants d’une même base sont regroupés ; les facteurs communs aux deux côtés d’une fraction sont annulés. Le calcul numérique reste demandé seulement dans les familles explicitement numériques. Les phrases à traduire, la notation scientifique et les puissances de fractions conservent leurs consignes dédiées.
