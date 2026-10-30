@@ -8,6 +8,8 @@ const answer=(a,n)=>n<0?`1/${a}^${-n}`:n===0?'1':`${a}^${n}`;
 const display=(a,n)=>n<0?frac('1',pow(a,-n)):n===0?'1':pow(a,n);
 const step=(text,html)=>({text,html});
 function lowerBase(a,n){for(let base=2;base<=Math.sqrt(a);base++){let value=base,power=1;while(value<a){value*=base;power++;}if(value===a)return {base,exponent:n*power};}return {base:a,exponent:n};}
+function productAnswer(a,n,b,m,negative=false){const x=lowerBase(a,n),y=lowerBase(b,m);let result;if(x.base===y.base)result=answer(x.base,x.exponent+y.exponent);else if(x.exponent===y.exponent){const z=lowerBase(x.base*y.base,x.exponent);result=answer(z.base,z.exponent);}else result=answer(x.base,x.exponent)+'*'+answer(y.base,y.exponent);return (negative?'-':'')+result;}
+function productShape(raw){const t=extra.tree(raw);if(!t)return null;let negative=false,minusCount=0;const parts=[];function walk(v){if(v[0]==='neg'){negative=!negative;minusCount++;return walk(v[1]);}if(v[0]==='mul')return walk(v[1])&&walk(v[2]);if(v[0]==='pow'&&v[1][0]==='num'&&v[2]>0){parts.push(v[1][1]+'^'+v[2]);return true;}if(v[0]==='num'){parts.push(v[1]+'^1');return true;}return false;}return walk(t)&&minusCount<=1?(negative?'-':'+')+parts.sort().join('*'):null;}
 function generate(kind,random=Math.random){
  if(extra.kinds.includes(kind))return extra.create(kind,random);
  if(['signes','signes-produits','signes-quotients','equation-lineaire','equation-fraction'].includes(kind))return advanced(kind,random);
@@ -64,6 +66,12 @@ function advanced(kind,random){
  }else if(kind==='signes-produits'||kind==='signes-quotients'){
   const quotient=kind==='signes-quotients';q.prompt=quotient?frac(term.html,other.html):term.html+' × ('+other.html+')';q.answer=quotient?reduce(term.value,other.value):String(term.value*other.value);q.hint='Commence par regarder si chaque signe moins est dans ou devant les parenthèses. Puis applique la règle des signes au produit ou au quotient.';
   q.steps=[step('Première puissance : '+explain(term),expanded(term)+' = '+term.value),step('Deuxième puissance : '+explain(other),expanded(other)+' = '+other.value),step('Deux signes identiques donnent un résultat positif ; deux signes différents donnent un résultat négatif.',quotient?frac(String(term.value),String(other.value)):String(term.value)+' × ('+other.value+')'),step(quotient?'Réduisons la fraction, avec un dénominateur positif.':'Calculons le produit en conservant le bon signe.',q.answer.includes('/')?frac(...q.answer.split('/')):q.answer)];
+  if(!quotient){
+   q.numeric=false;q.powerProduct=true;q.answer=productAnswer(term.a,term.n,other.a,other.n,term.value*other.value<0);
+   q.instruction='Détermine le signe et simplifie en gardant les puissances.';q.format='Tu peux conserver plusieurs puissances, par exemple 7^4 × 6^2. Regroupe les mêmes bases et réduis les bases si possible. Le grand calcul numérique est facultatif.';
+   q.hint='Trouve le signe de chaque puissance, puis celui du produit. Regroupe seulement quand une règle le permet ; inutile de calculer les grandes valeurs.';
+   q.steps=[step('Repérons le signe de la première puissance. '+explain(term),term.html+' = '+(term.value<0?'−':'')+pow(term.a,term.n)),step('Repérons le signe de la deuxième puissance. '+explain(other),other.html+' = '+(other.value<0?'−':'')+pow(other.a,other.n)),step('Résolvons le signe du produit et appliquons les regroupements possibles, sans effectuer les grandes puissances.',extra.html(extra.tree(q.answer)))];
+  }
  }else{
   const x=r(-9,12),quotient=kind==='equation-fraction';q.variable='x';q.answer=String(x);
   q.prompt=quotient?frac('x',term.html)+' = '+x:term.html+' × x = '+term.value*x;
@@ -95,6 +103,6 @@ function check(q,raw){if(raw.length>100)return {valid:false};raw=raw.replace(/�
  const value=parse(raw),expected=parse(q.answer);if(!value)return {valid:false};if(q.kind==='scientifique'){const match=raw.replace(/\s/g,'').replace(',','.').match(/^(\d+(?:\.\d+)?)[*×·xX]10\^([+-]?\d{1,2})$/);if(!match||Number(match[1])<1||Number(match[1])>=10)return {valid:true,correct:false};}
  const correct=value[0]*expected[1]===expected[0]*value[1];
  const normalized=raw.replace(/\s/g,'').replace(/÷/g,'/').replace(/²/g,'^2').replace(/³/g,'^3').replace(/\(([-+]?\d+(?:\^\d+)?)\)/g,'$1');
- return {valid:true,correct,reduced:q.numeric?numericForm(raw):q.kind==='scientifique'||normalized===q.answer||['produit-quotient','produit-quotient-bases'].includes(q.kind)&&normalized.replace(/[×·xX]/g,'*').replace(/\^1(?!\d)/g,'')===q.answer.replace(/\^1(?!\d)/g,'')||q.answer.endsWith('^1')&&normalized===q.answer.slice(0,-2)};}
-const api={generate,session,check,parse,kinds,levels};if(typeof module!=='undefined')module.exports=api;else root.Defis=api;
+ return {valid:true,correct,reduced:q.powerProduct?(numericForm(raw)||productShape(raw)===productShape(q.answer)):q.numeric?numericForm(raw):q.kind==='scientifique'||normalized===q.answer||['produit-quotient','produit-quotient-bases'].includes(q.kind)&&normalized.replace(/[×·xX]/g,'*').replace(/\^1(?!\d)/g,'')===q.answer.replace(/\^1(?!\d)/g,'')||q.answer.endsWith('^1')&&normalized===q.answer.slice(0,-2)};}
+const api={productAnswer,generate,session,check,parse,kinds,levels};if(typeof module!=='undefined')module.exports=api;else root.Defis=api;
 })(typeof globalThis!=='undefined'?globalThis:this);

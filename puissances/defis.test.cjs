@@ -110,3 +110,16 @@ assert.equal(D.check({kind:'produit',answer:'2^3'},'8').reduced,false);
 assert.equal(D.check({kind:'phrase-traduction',form:'translation',expression:'-(-3)^3',answer:'27'},'27').reduced,false);
 assert(D.check({kind:'puissance-fraction',numeric:true,answer:'3/4'},'75%').reduced);
 console.log('OK : équivalences numériques acceptées, fractions non réduites et formes de puissances toujours contrôlées.');
+
+assert.equal(D.productAnswer(7,4,6,2),'7^4*6^2');
+const largeProduct={kind:'signes-produits',powerProduct:true,answer:D.productAnswer(7,4,6,2)};
+for(const raw of ['7^4 × 6^2','6^2*7^4','(7^4)*(6^2)','86436']){const r=D.check(largeProduct,raw);assert(r.correct&&r.reduced,raw);}
+assert(!D.check(largeProduct,'-7^4*6^2').correct);
+assert.equal(D.productAnswer(4,3,2,2),'2^8');
+assert.equal(D.productAnswer(3,4,5,4,true),'-15^4');
+assert.equal(D.check({powerProduct:true,answer:'2^8'},'4^3*2^2').reduced,false);
+assert.equal(D.check({powerProduct:true,answer:'15^4'},'3^4*5^4').reduced,false);
+for(let i=0;i<200;i++){const q=D.generate('signes-produits',random);assert(!q.numeric);assert(q.format.includes('facultatif'));assert(D.check(q,q.answer).reduced);assert.equal(q.steps.length,3);}
+vm.runInContext("questions=[{kind:'signes-produits',powerProduct:true,answer:'7^4*6^2',instruction:'Simplifie en gardant les puissances.',format:'Plusieurs puissances possibles.',prompt:'test',steps:[]}];states=[{attemptCount:0,hint:false,shown:0,solved:false}];position=0;render();",context);unlock();
+assert(els.instruction.textContent.includes('gardant les puissances'));els.answer.value='7^4 × 6^2';els.form.onsubmit({preventDefault(){}});assert.equal(els.feedback.className,'status feedback-success');
+console.log('OK : grands produits acceptés en puissances, signes et regroupements contrôlés, consigne et validation dans le contrôleur.');

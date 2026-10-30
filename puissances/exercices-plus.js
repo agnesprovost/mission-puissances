@@ -13,7 +13,7 @@ function tree(raw,{variables=false}={}){
  const s=String(raw).replace(/\s/g,'').replace(/[×·xX]/g,'*').replace(/÷/g,'/').replace(/−/g,'-').replace(/²/g,'^2').replace(/³/g,'^3');
  if(s.length>100||!s||!(variables?/^[\d+*/^()ab-]+$/:/^[\d+*/^()-]+$/).test(s))return null;let i=0;
  function atom(){if(s[i]==='('){i++;const v=sum();if(s[i++]!==')')throw Error();return v;}if(variables&&/[ab]/.test(s[i]||''))return ['var',s[i++]];const m=s.slice(i).match(/^\d{1,16}/);if(!m)throw Error();i+=m[0].length;return ['num',String(BigInt(m[0]))];}
- function power(){let v=atom();if(s[i]==='^'){i++;const m=s.slice(i).match(/^\d{1,2}/);if(!m||Number(m[0])>30)throw Error();i+=m[0].length;v=['pow',v,Number(m[0])];}return v;}
+ function power(){let v=atom();if(s[i]==='^'){i++;const m=s.slice(i).match(/^\d{1,3}/);if(!m||Number(m[0])>120)throw Error();i+=m[0].length;v=['pow',v,Number(m[0])];}return v;}
  function signed(){if(s[i]==='-'||s[i]==='+'){const sign=s[i++],v=signed();return sign==='-'?['neg',v]:v;}return power();}
  function product(){let v=signed();while(s[i]==='*'||s[i]==='/'||s[i]==='('||variables&&/[ab]/.test(s[i]||'')){const explicit=s[i]==='*'||s[i]==='/',op=explicit?s[i++]:'*';v=[op==='*'?'mul':'div',v,signed()];}return v;}
  function sum(){let v=product();while(s[i]==='+'||s[i]==='-'){const op=s[i++];v=[op==='+'?'add':'sub',v,product()];}return v;}
